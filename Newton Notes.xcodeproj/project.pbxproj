@@ -24,25 +24,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C33F85982CD58BFB00242A84 /* Newton Notes IOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Newton Notes IOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C33F85AA2CD58BFD00242A84 /* Newton Notes IOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton Notes IOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C33F85B42CD58BFD00242A84 /* Newton Notes IOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton Notes IOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33F85982CD58BFB00242A84 /* Newton Notes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Newton Notes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33F85AA2CD58BFD00242A84 /* Newton NotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton NotesTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton NotesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C33F859A2CD58BFB00242A84 /* Newton Notes IOS */ = {
+		C33F859A2CD58BFB00242A84 /* Newton Notes */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Newton Notes IOS";
+			path = "Newton Notes";
 			sourceTree = "<group>";
 		};
-		C33F85AD2CD58BFD00242A84 /* Newton Notes IOSTests */ = {
+		C33F85AD2CD58BFD00242A84 /* Newton Notes Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Newton Notes IOSTests";
+			path = "Newton Notes Tests";
 			sourceTree = "<group>";
 		};
-		C33F85B72CD58BFD00242A84 /* Newton Notes IOSUITests */ = {
+		C33F85B72CD58BFD00242A84 /* Newton Notes UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Newton Notes IOSUITests";
+			path = "Newton Notes UITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		C33F858F2CD58BFB00242A84 = {
 			isa = PBXGroup;
 			children = (
-				C33F859A2CD58BFB00242A84 /* Newton Notes IOS */,
-				C33F85AD2CD58BFD00242A84 /* Newton Notes IOSTests */,
-				C33F85B72CD58BFD00242A84 /* Newton Notes IOSUITests */,
+				C33F859A2CD58BFB00242A84 /* Newton Notes */,
+				C33F85AD2CD58BFD00242A84 /* Newton Notes Tests */,
+				C33F85B72CD58BFD00242A84 /* Newton Notes UITests */,
 				C33F85992CD58BFB00242A84 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		C33F85992CD58BFB00242A84 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C33F85982CD58BFB00242A84 /* Newton Notes IOS.app */,
-				C33F85AA2CD58BFD00242A84 /* Newton Notes IOSTests.xctest */,
-				C33F85B42CD58BFD00242A84 /* Newton Notes IOSUITests.xctest */,
+				C33F85982CD58BFB00242A84 /* Newton Notes.app */,
+				C33F85AA2CD58BFD00242A84 /* Newton NotesTests.xctest */,
+				C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C33F85972CD58BFB00242A84 /* Newton Notes IOS */ = {
+		C33F85972CD58BFB00242A84 /* Newton Notes */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C33F85BE2CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOS" */;
+			buildConfigurationList = C33F85BE2CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes" */;
 			buildPhases = (
 				C33F85942CD58BFB00242A84 /* Sources */,
 				C33F85952CD58BFB00242A84 /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C33F859A2CD58BFB00242A84 /* Newton Notes IOS */,
+				C33F859A2CD58BFB00242A84 /* Newton Notes */,
 			);
-			name = "Newton Notes IOS";
+			name = "Newton Notes";
 			packageProductDependencies = (
 			);
 			productName = "Newton Notes IOS";
-			productReference = C33F85982CD58BFB00242A84 /* Newton Notes IOS.app */;
+			productReference = C33F85982CD58BFB00242A84 /* Newton Notes.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C33F85A92CD58BFD00242A84 /* Newton Notes IOSTests */ = {
+		C33F85A92CD58BFD00242A84 /* Newton NotesTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C33F85C12CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOSTests" */;
+			buildConfigurationList = C33F85C12CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton NotesTests" */;
 			buildPhases = (
 				C33F85A62CD58BFD00242A84 /* Sources */,
 				C33F85A72CD58BFD00242A84 /* Frameworks */,
@@ -131,18 +131,18 @@
 				C33F85AC2CD58BFD00242A84 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C33F85AD2CD58BFD00242A84 /* Newton Notes IOSTests */,
+				C33F85AD2CD58BFD00242A84 /* Newton Notes Tests */,
 			);
-			name = "Newton Notes IOSTests";
+			name = "Newton NotesTests";
 			packageProductDependencies = (
 			);
 			productName = "Newton Notes IOSTests";
-			productReference = C33F85AA2CD58BFD00242A84 /* Newton Notes IOSTests.xctest */;
+			productReference = C33F85AA2CD58BFD00242A84 /* Newton NotesTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		C33F85B32CD58BFD00242A84 /* Newton Notes IOSUITests */ = {
+		C33F85B32CD58BFD00242A84 /* Newton NotesUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C33F85C42CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOSUITests" */;
+			buildConfigurationList = C33F85C42CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton NotesUITests" */;
 			buildPhases = (
 				C33F85B02CD58BFD00242A84 /* Sources */,
 				C33F85B12CD58BFD00242A84 /* Frameworks */,
@@ -154,13 +154,13 @@
 				C33F85B62CD58BFD00242A84 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				C33F85B72CD58BFD00242A84 /* Newton Notes IOSUITests */,
+				C33F85B72CD58BFD00242A84 /* Newton Notes UITests */,
 			);
-			name = "Newton Notes IOSUITests";
+			name = "Newton NotesUITests";
 			packageProductDependencies = (
 			);
 			productName = "Newton Notes IOSUITests";
-			productReference = C33F85B42CD58BFD00242A84 /* Newton Notes IOSUITests.xctest */;
+			productReference = C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C33F85932CD58BFB00242A84 /* Build configuration list for PBXProject "Newton Notes IOS" */;
+			buildConfigurationList = C33F85932CD58BFB00242A84 /* Build configuration list for PBXProject "Newton Notes" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C33F85972CD58BFB00242A84 /* Newton Notes IOS */,
-				C33F85A92CD58BFD00242A84 /* Newton Notes IOSTests */,
-				C33F85B32CD58BFD00242A84 /* Newton Notes IOSUITests */,
+				C33F85972CD58BFB00242A84 /* Newton Notes */,
+				C33F85A92CD58BFD00242A84 /* Newton NotesTests */,
+				C33F85B32CD58BFD00242A84 /* Newton NotesUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		C33F85AC2CD58BFD00242A84 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C33F85972CD58BFB00242A84 /* Newton Notes IOS */;
+			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
 			targetProxy = C33F85AB2CD58BFD00242A84 /* PBXContainerItemProxy */;
 		};
 		C33F85B62CD58BFD00242A84 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C33F85972CD58BFB00242A84 /* Newton Notes IOS */;
+			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
 			targetProxy = C33F85B52CD58BFD00242A84 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -321,7 +321,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -378,7 +378,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -396,6 +396,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Newton Notes IOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 8R78TU7V89;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -424,6 +425,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Newton Notes IOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 8R78TU7V89;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -458,7 +460,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Newton Notes IOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Newton Notes IOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Newton Notes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Newton Notes";
 			};
 			name = Debug;
 		};
@@ -476,7 +478,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Newton Notes IOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Newton Notes IOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Newton Notes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Newton Notes";
 			};
 			name = Release;
 		};
@@ -515,7 +517,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C33F85932CD58BFB00242A84 /* Build configuration list for PBXProject "Newton Notes IOS" */ = {
+		C33F85932CD58BFB00242A84 /* Build configuration list for PBXProject "Newton Notes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C33F85BC2CD58BFD00242A84 /* Debug */,
@@ -524,7 +526,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C33F85BE2CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOS" */ = {
+		C33F85BE2CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C33F85BF2CD58BFD00242A84 /* Debug */,
@@ -533,7 +535,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C33F85C12CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOSTests" */ = {
+		C33F85C12CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton NotesTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C33F85C22CD58BFD00242A84 /* Debug */,
@@ -542,7 +544,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C33F85C42CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton Notes IOSUITests" */ = {
+		C33F85C42CD58BFD00242A84 /* Build configuration list for PBXNativeTarget "Newton NotesUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C33F85C52CD58BFD00242A84 /* Debug */,
