@@ -15,7 +15,7 @@ struct ContentView: View {
             
             WorkoutHistoryView()
                 .tabItem {
-                    Label("History", systemImage: "clock.arrow.circlepath")
+                    Label("Analytics", systemImage: "chart.line.uptrend.xyaxis")
                 }
 
             SettingsView()
@@ -46,9 +46,3 @@ struct WorkoutHistoryRow: View {
     }
 }
 
-
-
-#Preview {
-    ContentView()
-        .modelContainer(for: [Routine.self, Exercise.self, ExerciseSet.self], inMemory: true)
-}

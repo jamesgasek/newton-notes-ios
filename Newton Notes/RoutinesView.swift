@@ -10,17 +10,18 @@ import SwiftUI
 import SwiftData
 
 
-// Main Routines View
 struct RoutinesView: View {
     @Query private var routines: [Routine]
     @State private var showingAddRoutine = false
+    @Environment(\.modelContext) private var modelContext
+
     
     var body: some View {
         NavigationStack {
             List {
                 ForEach(routines) { routine in
                     NavigationLink {
-                        RoutineDetailView(routine: routine)
+                        WorkoutView(routine: routine)
                     } label: {
                         VStack(alignment: .leading) {
                             Text(routine.name)
@@ -30,6 +31,20 @@ struct RoutinesView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        NavigationLink{
+                            RoutineDetailView(routine: routine)
+                                            } label: {
+                                                Text("Edit")
+                                            }
+                                        }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                            Button(role: .destructive) {
+                                                deleteRoutine(routine)
+                                            } label: {
+                                                Text("Delete")
+                                            }.tint(.red)
+                                        }
                 }
             }
             .navigationTitle("Routines")
@@ -42,29 +57,38 @@ struct RoutinesView: View {
                 AddRoutineView()
             }
         }
+
     }
+    private func deleteRoutine(_ routine: Routine) {
+        modelContext.delete(routine)
+        try? modelContext.save()
+    }
+    
+//    private func startRoutine(_ routine: Routine) {
+//        // You'll implement this to navigate to your workout view
+//        print("Starting routine: \(routine.name)")
+//        WorkoutView()
+//    }
 }
 
-// Routine Detail View
 struct RoutineDetailView: View {
     let routine: Routine
     
     var body: some View {
         List {
             Section("Exercises") {
-                ForEach(routine.exercises, id: \.name) { exercise in
+                ForEach(routine.exercises, id: \.template.name) { exercise in
+                    NavigationLink {
+                        ExerciseDetailView(exercise: exercise)
+                    } label : {
                     VStack(alignment: .leading) {
-                        Text(exercise.name)
+                        Text(exercise.template.name)
                             .font(.headline)
-                        Text(exercise.category)
+                        Text(exercise.template.category)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        if let notes = exercise.notes {
-                            Text(notes)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
                     }
+                }
                 }
             }
         }
@@ -72,8 +96,7 @@ struct RoutineDetailView: View {
     }
 }
 
-// AddExerciseView - This adds exercises to your global exercise library
-struct AddExerciseView: View {
+struct AddExerciseTemplateView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @State private var exerciseName = ""
@@ -84,6 +107,23 @@ struct AddExerciseView: View {
         "Chest", "Back", "Legs", "Shoulders",
         "Arms", "Core", "Cardio", "Other"
     ]
+   
+    private func saveExercise() {
+        
+        let template = ExerciseTemplate(
+            name: exerciseName,
+            category: category
+        )
+        modelContext.insert(template)
+        
+        do {
+            try modelContext.save()
+            print("Successfully saved exercise: \(template.name)")
+        } catch {
+            print("Failed to save exercise: \(error)")
+        }
+        dismiss()
+    }
     
     var body: some View {
         NavigationStack {
@@ -108,14 +148,7 @@ struct AddExerciseView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let exercise = Exercise(
-                            name: exerciseName,
-                            category: category,
-                            notes: notes.isEmpty ? nil : notes
-                        )
-                        modelContext.insert(exercise)  // Add to SwiftData
-                        try? modelContext.save()
-                        dismiss()
+                        saveExercise()
                     }
                     .disabled(exerciseName.isEmpty)
                 }
@@ -124,14 +157,13 @@ struct AddExerciseView: View {
     }
 }
 
-// AddRoutineView - This creates new routines using exercises from your library
 struct AddRoutineView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var routineName = ""
     @State private var selectedExercises: [Exercise] = []
     @State private var showingAddExercise = false
-    @Query private var availableExercises: [Exercise]  // This gets all exercises from SwiftData
+    @Query(sort: \ExerciseTemplate.name) private var availableTemplates: [ExerciseTemplate]
     
     var body: some View {
         NavigationStack {
@@ -141,8 +173,8 @@ struct AddRoutineView: View {
                 }
                 
                 Section("Selected Exercises") {
-                    ForEach(selectedExercises, id: \.name) { exercise in
-                        Text(exercise.name)
+                    ForEach(selectedExercises.indices, id: \.self) { exerciseIndex in
+                        ExerciseRowView(exercise: $selectedExercises[exerciseIndex])
                     }
                     .onDelete(perform: removeExercises)
                     .onMove(perform: moveExercise)
@@ -153,15 +185,15 @@ struct AddRoutineView: View {
                 }
                 
                 Section("Exercise Library") {
-                    ForEach(availableExercises, id: \.name) { exercise in
-                        if !selectedExercises.contains(where: { $0.name == exercise.name }) {
+                    ForEach(availableTemplates) { template in
+                        if !selectedExercises.contains(where: { $0.template.id == template.id }) {
                             Button(action: {
-                                selectedExercises.append(exercise)
+                                addExerciseFromTemplate(template)
                             }) {
                                 VStack(alignment: .leading) {
-                                    Text(exercise.name)
+                                    Text(template.name)
                                         .font(.headline)
-                                    Text(exercise.category)
+                                    Text(template.category)
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
                                 }
@@ -180,18 +212,32 @@ struct AddRoutineView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let routine = Routine(name: routineName, exercises: selectedExercises)
-                        modelContext.insert(routine)  // Add to SwiftData
-                        try? modelContext.save()
-                        dismiss()
+                        saveRoutine()
                     }
                     .disabled(routineName.isEmpty || selectedExercises.isEmpty)
                 }
             }
             .sheet(isPresented: $showingAddExercise) {
-                AddExerciseView()
+                AddExerciseTemplateView()
             }
         }
+    }
+    
+    private func addExerciseFromTemplate(_ template: ExerciseTemplate) {
+        let defaultSets = [
+            ExerciseSet(weight: 0, reps: 0),
+            ExerciseSet(weight: 0, reps: 0),
+            ExerciseSet(weight: 0, reps: 0)
+        ]
+        let newExercise = Exercise(template: template, sets: defaultSets)
+        selectedExercises.append(newExercise)
+    }
+    
+    private func saveRoutine() {
+        let routine = Routine(name: routineName, exercises: selectedExercises)
+        modelContext.insert(routine)
+        try? modelContext.save()
+        dismiss()
     }
     
     private func removeExercises(at offsets: IndexSet) {
@@ -203,14 +249,93 @@ struct AddRoutineView: View {
     }
 }
 
-
-
-//public struct Exersizekj
-
-#Preview {
-    ContentView()
-        .modelContainer(for: [Routine.self, Exercise.self, ExerciseSet.self], inMemory: true)
+// Separate view for exercise row to simplify bindings
+struct ExerciseRowView: View {
+    @Binding var exercise: Exercise
+    
+    var body: some View {
+        DisclosureGroup {
+            ForEach(exercise.sets.indices, id: \.self) { setIndex in
+                SetRowView(set: $exercise.sets[setIndex], setNumber: setIndex + 1)
+            }
+            
+            // Add/Remove set buttons
+            HStack {
+                Button(action: addSet) {
+                    Label("Add Set", systemImage: "plus.circle.fill")
+                }
+                
+                if !exercise.sets.isEmpty {
+                    Spacer()
+                    Button(action: removeSet) {
+                        Label("Remove Set", systemImage: "minus.circle.fill")
+                            .foregroundColor(.red)
+                    }
+                }
+            }
+            .padding(.top, 5)
+        } label: {
+            VStack(alignment: .leading) {
+                Text(exercise.template.name)
+                    .font(.headline)
+                Text(exercise.template.category)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    private func addSet() {
+        exercise.sets.append(ExerciseSet())
+    }
+    
+    private func removeSet() {
+        if !exercise.sets.isEmpty {
+            exercise.sets.removeLast()
+        }
+    }
 }
 
+// Separate view for set row to further simplify bindings
+struct SetRowView: View {
+    @Binding var set: ExerciseSet
+    let setNumber: Int
+    
+    var body: some View {
+        HStack {
+            Text("Set \(setNumber)")
+            Spacer()
+            
+            TextField("Weight", value: $set.weight, format: .number)
+                .keyboardType(.decimalPad)
+                .frame(width: 60)
+            Text("lbs")
+            
+            TextField("Reps", value: $set.reps, format: .number)
+                .keyboardType(.numberPad)
+                .frame(width: 40)
+            Text("reps")
+        }
+    }
+}
 
-
+struct ExerciseDetailView: View {
+    let exercise: Exercise
+    
+    var body: some View {
+        List {
+            Section("Sets") {
+                ForEach(exercise.sets) { set in
+                    VStack(alignment: .leading) {
+                        Text("\(set.weight) lbs")  // or kg, depending on your units
+                            .font(.headline)
+                        Text("\(set.reps) reps")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+        .navigationTitle(exercise.template.name)
+    }
+}

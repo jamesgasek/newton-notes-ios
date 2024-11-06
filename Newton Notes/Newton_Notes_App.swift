@@ -8,50 +8,26 @@
 import SwiftUI
 import SwiftData
 
-//@main
-//struct Newton_Notes_IOSApp: App {
-//    var sharedModelContainer: ModelContainer = {
-//        let schema = Schema([
-//            Item.self,
-//        ])
-//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-//
-//        do {
-//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-//        } catch {
-//            fatalError("Could not create ModelContainer: \(error)")
-//        }
-//    }()
-//
-//    var body: some Scene {
-//        WindowGroup {
-//            ContentView()
-//        }
-//        .modelContainer(sharedModelContainer)
-//    }
-//}
-
 @main
-struct Newton_Notes_App: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Routine.self,
-            Exercise.self,
-            ExerciseSet.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+struct WorkoutTrackerApp: App {
+    let container: ModelContainer
+    
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            container = try ModelContainer(
+                for: Routine.self, Exercise.self, ExerciseTemplate.self, ExerciseSet.self,
+                configurations: config
+            )
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
-
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(container)
     }
 }
