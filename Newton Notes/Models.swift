@@ -50,3 +50,20 @@ public class ExerciseSet {
         self.timestamp = timestamp
     }
 }
+
+@Model
+class AnalyticsLog: Identifiable {
+    var id: UUID
+    var name: String
+    var value: Double
+    var unit: String
+    var timestamp: Date
+    
+    init(name: String, value: Double, unit: String, timestamp: Date = Date()) {
+        self.id = UUID()
+        self.name = name
+        self.value = value
+        self.unit = unit
+        self.timestamp = timestamp
+    }
+}

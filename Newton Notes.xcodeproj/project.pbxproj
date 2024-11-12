@@ -29,9 +29,23 @@
 		C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton NotesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C30469632CE39D08004A7AAB /* Exceptions for "Newton Notes" folder in "Newton Notes" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Preview Content/AddRoutineView.swift",
+				"Preview Content/GlobalState.swift",
+			);
+			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C33F859A2CD58BFB00242A84 /* Newton Notes */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C30469632CE39D08004A7AAB /* Exceptions for "Newton Notes" folder in "Newton Notes" target */,
+			);
 			path = "Newton Notes";
 			sourceTree = "<group>";
 		};

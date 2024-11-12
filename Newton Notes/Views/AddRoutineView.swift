@@ -78,7 +78,10 @@ struct AddRoutineView: View {
                 }
             }
             .sheet(isPresented: $showingAddExercise) {
-                AddExerciseTemplateView()
+//                AddExerciseTemplateView()
+                AddExerciseTemplateView { template in
+                    addExerciseFromTemplate(template)
+                }
             }
         }
     }

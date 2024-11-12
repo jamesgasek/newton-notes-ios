@@ -107,8 +107,3 @@ struct ExerciseDetailView: View {
     }
 }
 
-//
-//
-//#Preview {
-//    ExersizeDetailView()
-//}
