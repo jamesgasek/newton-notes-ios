@@ -19,7 +19,7 @@ struct ExerciseDetailView: View {
                 ForEach(exercise.sets.indices, id: \.self) { index in
                     HStack {
                         Text("Set \(index + 1)")
-                            .foregroundStyle(.white)
+//                            .foregroundStyle(.white)
                         
                         Spacer()
                         
@@ -69,6 +69,11 @@ struct ExerciseDetailView: View {
                         }
                     }
                 }
+            }
+            Section("Rest Time (Seconds)"){
+                TextField("90", value: $exercise.restTime, format: .number)
+                    .focused($focusedField)
+                    .keyboardType(.numberPad)
             }
         }
         .navigationTitle(exercise.template.name)

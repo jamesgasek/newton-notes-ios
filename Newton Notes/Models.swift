@@ -31,10 +31,12 @@ public class ExerciseTemplate: Identifiable {
 public class Exercise {
     var template: ExerciseTemplate
     var sets: [ExerciseSet]
+    var restTime: Int
     
-    init(template: ExerciseTemplate, sets: [ExerciseSet] = []) {
+    init(template: ExerciseTemplate, sets: [ExerciseSet] = [], restTime: Int = 90) {
         self.template = template
         self.sets = sets
+        self.restTime = restTime
     }
 }
 

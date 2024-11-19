@@ -122,17 +122,17 @@ struct RoutineRow: View {
 }
 
 struct RowContent: View {
-    let routine: Routine
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(routine.name)
-                .font(.headline)
-            Text("\(routine.exercises.count) exercises")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-    }
+   let routine: Routine
+   
+   var body: some View {
+       VStack(alignment: .leading) {
+           Text(routine.name)
+               .font(.headline)
+           Text("\(routine.exercises.count) \(routine.exercises.count == 1 ? "exercise" : "exercises")")
+               .font(.subheadline)
+               .foregroundColor(.secondary)
+       }
+       .frame(maxWidth: .infinity, alignment: .leading)
+       .contentShape(Rectangle())
+   }
 }

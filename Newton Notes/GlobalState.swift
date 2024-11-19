@@ -16,9 +16,9 @@ import Foundation
     var activeSetIndex: Int?
     var isWorkoutInProgress: Bool = false
     
-    func startTimer() {
+    func startTimer(time : Int) {
         stopTimer()
-        timeRemaining = 90
+        timeRemaining = time
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             if self.timeRemaining > 0 {
@@ -55,7 +55,7 @@ import Foundation
         if completed {
             completedSets.insert(identifier)
             if !isLastSet(exercise, setIndex) {
-                startTimer()
+                startTimer(time: exercise.restTime)
                 activeExercise = exercise
                 activeSetIndex = setIndex
             }

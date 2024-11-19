@@ -5,7 +5,7 @@ struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var manager: WorkoutManager
     @Environment(\.modelContext) private var modelContext
-    @FocusState private var focusedField: String?  // Change to simple String identifier
+    @FocusState private var focusedField: Bool  // Change to simple String identifier
     
     init(routine: Routine, workoutManager: WorkoutManager) {
         self.routine = routine
@@ -36,6 +36,7 @@ struct WorkoutView: View {
                                     .keyboardType(.decimalPad)
                                     .submitLabel(.done)
 //                                    .focused($focusedField, equals: fieldIdentifier(exerciseId: exercise.id, setIndex: index, isWeight: true))
+                                    .focused($focusedField, equals : true)
                                     
                                     Text("lbs")
                                     
@@ -51,6 +52,8 @@ struct WorkoutView: View {
                                     .keyboardType(.numberPad)
                                     .submitLabel(.done)
 //                                    .focused($focusedField, equals: fieldIdentifier(exerciseId: exercise.id, setIndex: index, isWeight: false))
+                                    .focused($focusedField, equals : true)
+
                                     
                                     Text("reps")
                                     
@@ -81,7 +84,7 @@ struct WorkoutView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
-                        focusedField = nil
+                        focusedField = false
                     }
                 }
             }

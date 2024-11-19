@@ -3,8 +3,8 @@ import SwiftUI
 import SwiftData
 
 struct SettingsView: View {
-    @AppStorage("weightUnit") private var weightUnit = "kg"
-    @AppStorage("distanceUnit") private var distanceUnit = "km"
+    @AppStorage("weightUnit") private var weightUnit = "lbs"
+    @AppStorage("distanceUnit") private var distanceUnit = "mi"
     @AppStorage("theme") private var theme = "sys"
     @State private var showCopiedAlert = false
     @State private var copiedText = ""
@@ -16,12 +16,11 @@ struct SettingsView: View {
                     Picker("Weight Unit", selection: $weightUnit) {
                         Text("Kilograms (kg)").tag("kg")
                         Text("Pounds (lbs)").tag("lbs")
-                    }
-                    
+                    }.disabled(true)
                     Picker("Distance Unit", selection: $distanceUnit) {
                         Text("Kilometers (km)").tag("km")
                         Text("Miles (mi)").tag("mi")
-                    }
+                    }.disabled(true)
                 }
                 
                 Section("Appearance") {
@@ -29,12 +28,12 @@ struct SettingsView: View {
                         Text("Light").tag("lgt")
                         Text("Dark").tag("drk")
                         Text("System").tag("sys")
-                    }
+                    }.disabled(true)
                 }
 
                 Section("About") {
                     Link("Rate App", destination: URL(string: "https://apps.apple.com")!)
-                    Link("Privacy Policy", destination: URL(string: "https://your-privacy-policy")!)
+//                    Link("Privacy Policy", destination: URL(string: "https://your-privacy-policy")!)
                 }
                 
                 Section("Donate") {
