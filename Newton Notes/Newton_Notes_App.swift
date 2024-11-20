@@ -8,6 +8,15 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import BackgroundTasks
+
+// In your SceneDelegate or App
+func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.jamesgasek.newtonnotes.timerprocessing", using: nil) { task in
+        // Handle the background task
+        task.setTaskCompleted(success: true)
+    }
+}
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
