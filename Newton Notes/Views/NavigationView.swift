@@ -19,10 +19,16 @@ struct NavigationView: View {
                     Label("Analytics", systemImage: "chart.line.uptrend.xyaxis")
                 }
             
+            UtilitiesView()
+                .tabItem {
+                    Label("Utilities", systemImage: "wrench.and.screwdriver")
+                }
+            
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
+            
         }
         .tint(.blue)
         .overlay(alignment: .bottom) {
