@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct SettingsView: View {
     @AppStorage("weightUnit") private var weightUnit = "lbs"
@@ -8,6 +9,13 @@ struct SettingsView: View {
     @AppStorage("theme") private var theme = "sys"
     @State private var showCopiedAlert = false
     @State private var copiedText = ""
+    
+    
+    @Environment(\.modelContext) private var modelContext
+    @Query private var routines: [Routine]
+    @Query private var exerciseTemplates: [ExerciseTemplate]
+    @Query private var analyticsLogs: [AnalyticsLog]
+    
     
     var body: some View {
         NavigationStack {
@@ -30,10 +38,24 @@ struct SettingsView: View {
                         Text("System").tag("sys")
                     }.disabled(true)
                 }
-
+                
                 Section("About") {
                     Link("Rate App", destination: URL(string: "https://apps.apple.com")!)
-//                    Link("Privacy Policy", destination: URL(string: "https://your-privacy-policy")!)
+                    Link("Privacy Policy", destination: URL(string: "http://www.gasek.net/newtonnotes/privacypolicy")!)
+                }
+                
+                Section("Manage Data") {
+                    Button(action: {
+                        //here
+                    }) {
+                        Text("Import from file")
+                    }
+                    
+                    Button(action: {
+                        //here
+                    }) {
+                        Text("Export")
+                    }
                 }
                 
                 Section("Donate") {
@@ -64,15 +86,4 @@ struct SettingsView: View {
         showCopiedAlert = true
     }
     
-    private func exportData() {
-        // Implement export functionality
-    }
-    
-    private func importData() {
-        // Implement import functionality
-    }
 }
-//
-//#Preview {
-//    SettingsView()
-//}

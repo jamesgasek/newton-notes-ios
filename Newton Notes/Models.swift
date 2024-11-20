@@ -58,14 +58,54 @@ class AnalyticsLog: Identifiable {
     var id: UUID
     var name: String
     var value: Double
-    var unit: String
     var timestamp: Date
     
-    init(name: String, value: Double, unit: String, timestamp: Date = Date()) {
+    init(name: String, value: Double,  timestamp: Date = Date()) {
         self.id = UUID()
         self.name = name
         self.value = value
-        self.unit = unit
         self.timestamp = timestamp
     }
 }
+
+
+
+//for import / export logic
+
+struct ExportData: Codable {
+    var routines: [RoutineData]
+    var exerciseTemplates: [ExerciseTemplateData]
+    var analyticsLogs: [AnalyticsLogData]
+}
+
+struct RoutineData: Codable {
+    var name: String
+    var exercises: [ExerciseData]
+    var createdAt: Date
+}
+
+struct ExerciseTemplateData: Codable {
+    var name: String
+    var category: String
+}
+
+struct ExerciseData: Codable {
+    var template: ExerciseTemplateData
+    var sets: [ExerciseSetData]
+    var restTime: Int
+}
+
+struct ExerciseSetData: Codable {
+    var weight: Double
+    var reps: Int
+    var timestamp: Date
+}
+
+struct AnalyticsLogData: Codable {
+    var name: String
+    var value: Double
+    var unit: String
+    var timestamp: Date
+}
+
+

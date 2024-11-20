@@ -11,6 +11,10 @@ import SwiftUI
 import SwiftData
 import Charts
 
+enum TimeRange {
+    case week, month, year, all
+}
+
 struct AddLogEntryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -18,10 +22,8 @@ struct AddLogEntryView: View {
     
     @State private var selectedName: String = ""
     @State private var customName: String = ""
-    @State private var value: Double = 0
-    @State private var isCustomName: Bool = true
-    @State private var selectedUnit: String = "lbs"  // Add near other @State vars
-
+    @State private var value: Double?
+    @State private var chooseExisting: Bool = true
     
     private var uniqueNames: [String] {
         Array(Set(existingLogs.map { $0.name })).sorted()
@@ -32,19 +34,16 @@ struct AddLogEntryView: View {
             Form {
                 Section {
                     if uniqueNames.isEmpty {
-                        Text("Create your first tracking category")
-                            .foregroundColor(.secondary)
+                        //none
                     } else {
-                        Picker("Category Type", selection: $isCustomName) {
-                            Text("Choose Existing").tag(false)
-                            Text("Create New").tag(true)
+                        Picker("Category Type", selection: $chooseExisting) {
+                            Text("Choose Existing").tag(true)
+                            Text("Create New").tag(false)
                         }
                         .pickerStyle(.segmented)
                     }
-                    
-                    if isCustomName {
+                    if !chooseExisting || uniqueNames.isEmpty {
                         TextField("New Category Name", text: $customName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
                     } else {
                         Picker("Select Category", selection: $selectedName) {
                             Text("Select a category").tag("")
@@ -55,26 +54,13 @@ struct AddLogEntryView: View {
                         .pickerStyle(.menu)
                     }
                 } header: {
-                    Text("What do you want to track?")
+                    Text(uniqueNames.isEmpty ? "Create your first tracking category" : "What do you want to track?")
                 }
                 
                 Section {
                     HStack {
                         TextField("Value", value: $value, format: .number)
                             .keyboardType(.decimalPad)
-                        
-//                        // Optional: Add unit picker if relevant
-//                        Picker("Unit", selection: .constant("")) {
-//                            Text("lbs").tag("lbs")
-//                            Text("kg").tag("kg")
-//                            Text("reps").tag("reps")
-//                            // Add other relevant units
-//                        }
-                        Picker("Unit", selection: $selectedUnit) {
-                            Text("lbs").tag("lbs")
-                            Text("kg").tag("kg")
-                            Text("reps").tag("reps")
-                        }
                     }
                 } header: {
                     Text("Enter Today's Value")
@@ -92,14 +78,15 @@ struct AddLogEntryView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let name = isCustomName ? customName : selectedName
-                        if !name.isEmpty {
-                            let log = AnalyticsLog(name: name, value: value, unit: selectedUnit)
+                        // Use customName for first entry or when creating new, otherwise use selectedName
+                        let name = (uniqueNames.isEmpty || !chooseExisting) ? customName : selectedName
+                        if !name.isEmpty, let actualValue = value {
+                            let log = AnalyticsLog(name: name, value: actualValue)
                             modelContext.insert(log)
                             dismiss()
                         }
                     }
-                    .disabled(isCustomName ? customName.isEmpty : selectedName.isEmpty)
+                    .disabled(value == nil || (uniqueNames.isEmpty ? customName.isEmpty : (!chooseExisting ? customName.isEmpty : selectedName.isEmpty)))
                 }
             }
         }
@@ -113,13 +100,28 @@ struct WorkoutHistoryView: View {
     @State private var showingAddEntry = false
     @State private var selectedTimeRange: TimeRange = .week
     
-    enum TimeRange {
-        case week, month, year, all
-    }
-    
     private var uniqueNames: [String] {
         Array(Set(logs.map { $0.name })).sorted()
     }
+    
+    private func filterLogs(_ logs: [AnalyticsLog]) -> [AnalyticsLog] {
+           let calendar = Calendar.current
+           let now = Date()
+           
+           switch selectedTimeRange {
+           case .week:
+               let oneWeekAgo = calendar.date(byAdding: .day, value: -7, to: now)!
+               return logs.filter { $0.timestamp >= oneWeekAgo }
+           case .month:
+               let oneMonthAgo = calendar.date(byAdding: .month, value: -1, to: now)!
+               return logs.filter { $0.timestamp >= oneMonthAgo }
+           case .year:
+               let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: now)!
+               return logs.filter { $0.timestamp >= oneYearAgo }
+           case .all:
+               return logs
+           }
+       }
     
     var body: some View {
         NavigationStack {
@@ -143,7 +145,12 @@ struct WorkoutHistoryView: View {
                     ScrollView {
                         LazyVStack(spacing: 20) {
                             ForEach(uniqueNames, id: \.self) { name in
-                                ChartCard(name: name, logs: logs.filter { $0.name == name })
+                                ChartCard(
+                                        name: name,
+                                        logs: filterLogs(logs.filter { $0.name == name }),
+                                        timeRange: selectedTimeRange
+
+                                    )
                             }
                         }
                         .padding()
@@ -168,8 +175,11 @@ struct WorkoutHistoryView: View {
 }
 
 struct ChartCard: View {
+//    let name: String
+//    let logs: [AnalyticsLog]
     let name: String
     let logs: [AnalyticsLog]
+    let timeRange: TimeRange  // Add this parameter
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -181,7 +191,26 @@ struct ChartCard: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
+//            Chart {
+//                ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
+//                    LineMark(
+//                        x: .value("Date", item.timestamp),
+//                        y: .value("Value ", item.value)
+//                    )
+//                    .symbol(.circle)
+//                    .interpolationMethod(.catmullRom)
+//                }
+//            }
+//            .chartYAxis {
+//                AxisMarks(position: .leading)
+//            }
+//            .chartXAxis {
+//                AxisMarks(values: .stride(by: .day, count: 7)) { value in
+//                    AxisGridLine()
+//                    AxisValueLabel(format: .dateTime.month().day())
+//                }
+//            }
+//            .frame(height: 200)
 //            Chart {
 //                ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
 //                    LineMark(
@@ -189,54 +218,102 @@ struct ChartCard: View {
 //                        y: .value("Value", item.value)
 //                    )
 //                    .symbol(.circle)
-//                    .interpolationMethod(.catmullRom)
+//                    .interpolationMethod(.linear) // Changed from .catmullRom to .linear for straight lines
 //                }
 //            }
+//            .chartYAxis {
+//                AxisMarks(position: .leading) {
+//                    AxisValueLabel() // This ensures the value labels show
+//                }
+//            }
+//            .chartXAxis {
+//                AxisMarks { value in
+//                    AxisGridLine()
+//                    AxisValueLabel {
+//                        // Customize date format based on selected time range
+//                        if let date = value.as(Date.self) {
+//                            switch timeRange {  // You'll need to pass timeRange as a parameter
+//                            case .week:
+//                                Text(date, format: .dateTime.weekday())
+//                            case .month:
+//                                Text(date, format: .dateTime.day())
+//                            case .year:
+//                                Text(date, format: .dateTime.month())
+//                            case .all:
+//                                Text(date, format: .dateTime.month().year())
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            .frame(height: 200)
             Chart {
                 ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
                     LineMark(
                         x: .value("Date", item.timestamp),
-                        y: .value("Value (\(item.unit))", item.value)
+                        y: .value("Value", item.value)
                     )
                     .symbol(.circle)
-                    .interpolationMethod(.catmullRom)
+                    .interpolationMethod(.linear)
                 }
             }
             .chartYAxis {
-                AxisMarks(position: .leading)
+                AxisMarks(position: .leading) {
+                    AxisValueLabel()
+                }
             }
             .chartXAxis {
-                AxisMarks(values: .stride(by: .day, count: 7)) { value in
-                    AxisGridLine()
-                    AxisValueLabel(format: .dateTime.month().day())
+                // Add appropriate stride based on time range
+                switch timeRange {
+                case .week:
+                    AxisMarks(values: .stride(by: .day, count: 1)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let date = value.as(Date.self) {
+                                Text(date, format: .dateTime.weekday(.abbreviated))
+                            }
+                        }
+                    }
+                case .month:
+                    AxisMarks(values: .stride(by: .day, count: 7)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let date = value.as(Date.self) {
+                                Text(date, format: .dateTime.day())
+                            }
+                        }
+                    }
+                case .year:
+                    AxisMarks(values: .stride(by: .month, count: 1)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let date = value.as(Date.self) {
+                                Text(date, format: .dateTime.month(.abbreviated))
+                            }
+                        }
+                    }
+                case .all:
+                    AxisMarks(values: .stride(by: .month, count: 3)) { value in
+                        AxisGridLine()
+                        AxisValueLabel {
+                            if let date = value.as(Date.self) {
+                                Text(date, format: .dateTime.month(.abbreviated).year())
+                            }
+                        }
+                    }
                 }
             }
             .frame(height: 200)
             
-            // Add latest value and change
-//            if let latest = logs.max(by: { $0.timestamp < $1.timestamp }) {
-//                HStack {
-//                    Text("Latest: \(latest.value, specifier: "%.1f")")
-//                        .font(.subheadline)
-//                    Spacer()
-//                    if let change = calculateChange() {
-//                        Text(change >= 0 ? "↑" : "↓")
-//                            .foregroundColor(change >= 0 ? .green : .red)
-//                        Text("\(abs(change), specifier: "%.1f")")
-//                            .font(.subheadline)
-//                            .foregroundColor(change >= 0 ? .green : .red)
-//                    }
-//                }
-//            }
             if let latest = logs.max(by: { $0.timestamp < $1.timestamp }) {
                 HStack {
-                    Text("Latest: \(latest.value, specifier: "%.1f") \(latest.unit)")
+                    Text("Latest: \(latest.value, specifier: "%.1f")")
                         .font(.subheadline)
                     Spacer()
                     if let change = calculateChange() {
                         Text(change >= 0 ? "↑" : "↓")
                             .foregroundColor(change >= 0 ? .green : .red)
-                        Text("\(abs(change), specifier: "%.1f") \(latest.unit)")
+                        Text("\(abs(change), specifier: "%.1f")")
                             .font(.subheadline)
                             .foregroundColor(change >= 0 ? .green : .red)
                     }
@@ -257,6 +334,7 @@ struct ChartCard: View {
         }
         return latest.value - previous.value
     }
+    
 }
 
 extension Date {
