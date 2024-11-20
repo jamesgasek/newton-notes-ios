@@ -7,32 +7,20 @@
 
 import SwiftUI
 import SwiftData
-//
-//@main
-//struct WorkoutTrackerApp: App {
-//    let container: ModelContainer
-//    @StateObject private var workoutManager = WorkoutManager()
-//    
-//    init() {
-//        do {
-//            let config = ModelConfiguration(isStoredInMemoryOnly: false)
-//            container = try ModelContainer(
-//                for: Routine.self, Exercise.self, ExerciseTemplate.self, ExerciseSet.self,
-//                configurations: config
-//            )
-//        } catch {
-//            fatalError("Could not create ModelContainer: \(error)")
-//        }
-//    }
-//    
-//    var body: some Scene {
-//        WindowGroup {
-//            ContentView().environment(workoutManager)
-//
-//        }
-//        .modelContainer(container)
-//    }
-//}
+import UserNotifications
+
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Show notification even when app is in foreground
+        completionHandler([.banner, .sound])
+    }
+}
+
 @main
 struct WorkoutTrackerApp: App {
     let container: ModelContainer

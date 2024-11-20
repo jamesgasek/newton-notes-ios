@@ -44,20 +44,20 @@ struct SettingsView: View {
                     Link("Privacy Policy", destination: URL(string: "http://www.gasek.net/newtonnotes/privacypolicy")!)
                 }
                 
-                Section("Manage Data") {
-                    Button(action: {
-                        //here
-                    }) {
-                        Text("Import from file")
-                    }
-                    
-                    Button(action: {
-                        //here
-                    }) {
-                        Text("Export")
-                    }
-                }
-                
+//                Section("Manage Data") {
+//                    Button(action: {
+//                        //here
+//                    }) {
+//                        Text("Import from file")
+//                    }.disabled(true)
+//                    
+//                    Button(action: {
+//                        //here
+//                    }) {
+//                        Text("Export")
+//                    }.disabled(true)
+//                }
+//                
                 Section("Donate") {
                     Button(action: {
                         copyToClipboard("bc1qrdc02qnvsn7sc2feml2nfma7u8u0prccln0e8p")
