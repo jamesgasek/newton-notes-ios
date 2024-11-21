@@ -1,14 +1,9 @@
-//
-//  AddRoutineView.swift
-//  Newton Notes
-//
-//  Created by James Gasek on 11/6/24.
-//
-
 import SwiftUI
 import SwiftData
+import os.log
 
 struct AddRoutineView: View {
+    private let logger = Logger(subsystem: "com.jamesgasek.newtonnotes", category: "AddRoutineView")
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var routineName = ""
@@ -17,6 +12,7 @@ struct AddRoutineView: View {
     @Query(sort: \ExerciseTemplate.name) private var availableTemplates: [ExerciseTemplate]
     
     var body: some View {
+        // Body remains the same...
         NavigationStack {
             Form {
                 Section {
@@ -78,7 +74,6 @@ struct AddRoutineView: View {
                 }
             }
             .sheet(isPresented: $showingAddExercise) {
-//                AddExerciseTemplateView()
                 AddExerciseTemplateView { template in
                     addExerciseFromTemplate(template)
                 }
@@ -87,27 +82,76 @@ struct AddRoutineView: View {
     }
     
     private func addExerciseFromTemplate(_ template: ExerciseTemplate) {
-        let defaultSets = [
-            ExerciseSet(weight: 0, reps: 10),
-            ExerciseSet(weight: 0, reps: 10),
-            ExerciseSet(weight: 0, reps: 10)
-        ]
-        let newExercise = Exercise(template: template, sets: defaultSets)
+        logger.debug("Starting addExerciseFromTemplate for template: \(template.name)")
+        
+        // Create the exercise first and insert it into the context
+        let newExercise = Exercise(template: template, sets: [], restTime: 90)
+        modelContext.insert(newExercise)
+        logger.debug("Created exercise shell")
+        
+        // Create and add sets one by one, ensuring they're in the same context
+        for _ in 0..<3 {
+            let set = ExerciseSet(weight: 0, reps: 10)
+            modelContext.insert(set)
+            newExercise.sets.append(set)  // Using append since sets is an array
+            logger.debug("Added set to exercise")
+        }
+        
+        // Add to selected exercises array
         selectedExercises.append(newExercise)
+        logger.debug("Added exercise to selectedExercises array")
+        
+        // Save the context
+        do {
+            try modelContext.save()
+            logger.debug("Successfully saved context")
+        } catch {
+            logger.error("Error in addExerciseFromTemplate: \(error.localizedDescription)")
+        }
     }
     
     private func saveRoutine() {
-        let routine = Routine(name: routineName, exercises: selectedExercises)
-        modelContext.insert(routine)
-        try? modelContext.save()
-        dismiss()
+        logger.debug("Starting saveRoutine with name: \(routineName) and \(selectedExercises.count) exercises")
+        
+        do {
+            // Create the routine first
+            let routine = Routine(name: routineName, exercises: [])
+            modelContext.insert(routine)
+            
+            // Add each exercise to the routine
+            for exercise in selectedExercises {
+                // Create a new exercise with the same template
+                let newExercise = Exercise(template: exercise.template, sets: [], restTime: exercise.restTime)
+                modelContext.insert(newExercise)
+                
+                // Create and add new sets
+                for set in exercise.sets {
+                    let newSet = ExerciseSet(weight: set.weight, reps: set.reps)
+                    modelContext.insert(newSet)
+                    newExercise.sets.append(newSet)  // Using append since sets is an array
+                }
+                
+                // Add the exercise to the routine
+                routine.exercises.append(newExercise)  // Using append since exercises is an array
+            }
+            
+            logger.debug("Created and inserted routine with \(routine.exercises.count) exercises")
+            
+            try modelContext.save()
+            logger.debug("Successfully saved routine")
+            dismiss()
+        } catch {
+            logger.error("Error saving routine: \(error.localizedDescription)")
+        }
     }
     
     private func removeExercises(at offsets: IndexSet) {
+        logger.debug("Removing exercises at offsets: \(offsets)")
         selectedExercises.remove(atOffsets: offsets)
     }
     
     private func moveExercise(from source: IndexSet, to destination: Int) {
+        logger.debug("Moving exercise from \(source) to \(destination)")
         selectedExercises.move(fromOffsets: source, toOffset: destination)
     }
 }

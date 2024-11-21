@@ -9,225 +9,7 @@ import Foundation
 import UIKit
 import UserNotifications
 import BackgroundTasks
-
-//@Observable class WorkoutManager {
-////    var currentRoutine: Routine?
-////    var completedSets = Set<String>()
-////    var timeRemaining: Int = 0 {
-////        didSet {
-////            updateNotification()
-////        }
-////    }
-////    var activeExercise: Exercise?
-////    var activeSetIndex: Int?
-////    var isWorkoutInProgress: Bool = false
-////    
-////    private var dispatchTimer: DispatchSourceTimer?
-////    
-////    init() {
-////        // Request notification permissions when initializing
-////        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-////            if granted {
-////                print("Notification permission granted")
-////            }
-////        }
-////    }
-////    
-////    private func updateNotification() {
-////        let notificationCenter = UNUserNotificationCenter.current()
-////        
-////        // Remove any existing notifications
-////        notificationCenter.removeAllPendingNotificationRequests()
-////        
-////        if timeRemaining > 0 {
-////            // Create notification content
-////            let content = UNMutableNotificationContent()
-////            content.title = "Rest Timer"
-////            content.body = "\(timeRemaining)s remaining"
-////            content.sound = nil  // No sound for updates
-////            
-////            // Create trigger for immediate delivery
-////            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-////            
-////            // Create request
-////            let request = UNNotificationRequest(identifier: "timer", content: content, trigger: trigger)
-////            
-////            // Schedule notification
-////            notificationCenter.add(request)
-////        }
-////    }
-////    
-////    func startTimer(time : Int) {
-////        stopTimer()
-////        timeRemaining = time
-////        
-////        let timer = DispatchSource.makeTimerSource(flags: [], queue: .main)
-////        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .milliseconds(100))
-////        
-////        timer.setEventHandler { [weak self] in
-////            guard let self = self else { return }
-////            
-////            DispatchQueue.main.async {
-////                if self.timeRemaining > 0 {
-////                    self.timeRemaining -= 1
-////                }
-////                
-////                if self.timeRemaining <= 0 {
-////                    self.stopTimer()
-////                    // Send final notification when timer completes
-////                    self.sendTimerCompletedNotification()
-////                }
-////            }
-////        }
-////        
-////        dispatchTimer = timer
-////        timer.resume()
-////        
-////        let backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-////            self?.stopTimer()
-////        }
-////        
-////        if backgroundTask == .invalid {
-////            stopTimer()
-////        }
-////    }
-////    
-////    private func sendTimerCompletedNotification() {
-////        let content = UNMutableNotificationContent()
-////        content.title = "Rest Timer Complete"
-////        content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
-////        content.sound = .default
-////        
-////        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-////        let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
-////        
-////        UNUserNotificationCenter.current().add(request)
-////    }
-////    
-////    func stopTimer() {
-////        dispatchTimer?.cancel()
-////        dispatchTimer = nil
-////        timeRemaining = 0
-////        
-////        // Remove any pending notifications when stopping the timer
-////        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-////    }
-//    var currentRoutine: Routine?
-//    var completedSets = Set<String>()
-//    var timeRemaining: Int = 0 {
-//        didSet {
-//            updateNotification()
-//        }
-//    }
-//    var activeExercise: Exercise?
-//    var activeSetIndex: Int?
-//    var isWorkoutInProgress: Bool = false
-//    
-//    private var dispatchTimer: DispatchSourceTimer?
-//    private var backgroundTaskIdentifier: UIBackgroundTaskIdentifier = .invalid
-//    private var timerStartTime: Date?
-//    private var originalDuration: Int = 0
-//    
-//    init() {
-//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-//            if granted {
-//                print("Notification permission granted")
-//            }
-//        }
-//    }
-//    
-//    func startTimer(time : Int) {
-//        stopTimer()
-//        originalDuration = time
-//        timeRemaining = time
-//        timerStartTime = Date()
-//        
-//        // Schedule a local notification for when the timer should complete
-//        scheduleTimerCompletionNotification(timeRemaining: time)
-//        
-//        let timer = DispatchSource.makeTimerSource(flags: [], queue: .main)
-//        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .milliseconds(100))
-//        
-//        timer.setEventHandler { [weak self] in
-//            guard let self = self else { return }
-//            
-//            DispatchQueue.main.async {
-//                if self.timeRemaining > 0 {
-//                    self.timeRemaining -= 1
-//                }
-//                
-//                if self.timeRemaining <= 0 {
-//                    self.stopTimer()
-//                }
-//            }
-//        }
-//        
-//        dispatchTimer = timer
-//        timer.resume()
-//        
-//        // Start background task
-//        registerBackgroundTask()
-//    }
-//    
-//    private func registerBackgroundTask() {
-//        // End any existing background task
-//        endBackgroundTask()
-//        
-//        backgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask { [weak self] in
-//            print("Background task expiring...")
-//            self?.scheduleTimerCompletionNotification(timeRemaining: self?.timeRemaining ?? 0)
-//            self?.endBackgroundTask()
-//        }
-//        
-//        assert(backgroundTaskIdentifier != .invalid)
-//    }
-//    
-//    private func endBackgroundTask() {
-//        if backgroundTaskIdentifier != .invalid {
-//            print("Ending background task...")
-//            UIApplication.shared.endBackgroundTask(backgroundTaskIdentifier)
-//            backgroundTaskIdentifier = .invalid
-//        }
-//    }
-//    
-//    private func scheduleTimerCompletionNotification(timeRemaining: Int) {
-//        // Remove any existing notifications
-//        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-//        
-//        if timeRemaining > 0 {
-//            let content = UNMutableNotificationContent()
-//            content.title = "Rest Timer Complete"
-//            content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
-//            content.sound = .default
-//            // Schedule the notification for when the timer should complete
-//            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeRemaining), repeats: false)
-//            let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
-//            
-//            UNUserNotificationCenter.current().add(request)
-//        }
-//    }
-//    
-//    private func updateNotification() {
-//        let content = UNMutableNotificationContent()
-//        content.title = "Rest Timer"
-//        content.body = "\(timeRemaining)s remaining" + (activeExercise != nil ? " until \(activeExercise!.template.name)" : "")
-//        content.sound = nil
-//        
-//        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-//        let request = UNNotificationRequest(identifier: "timerUpdate", content: content, trigger: trigger)
-//        
-//        UNUserNotificationCenter.current().add(request)
-//    }
-//    
-//    func stopTimer() {
-//        dispatchTimer?.cancel()
-//        dispatchTimer = nil
-//        timeRemaining = 0
-//        timerStartTime = nil
-//        endBackgroundTask()
-//        
-//        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-//    }
+import os.log
 
 @Observable class WorkoutManager {
     var currentRoutine: Routine?
@@ -242,80 +24,44 @@ import BackgroundTasks
     var isWorkoutInProgress: Bool = false
     
     private var dispatchTimer: DispatchSourceTimer?
-    private var timerStartTime: Date?
-    private var originalDuration: Int = 0
-    private let backgroundTaskIdentifier = "com.yourdomain.newtonnotes.timerprocessing"
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+    private var endTime: Date?
+
     
     init() {
-        registerBackgroundTasks()
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge]) { granted, error in
             if granted {
                 print("Notification permission granted")
             }
         }
+        
+//        UNUserNotificationCenter.current().delegate = self
     }
     
-    private func registerBackgroundTasks() {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundTaskIdentifier, using: nil) { task in
-            self.handleAppRefresh(task: task as! BGProcessingTask)
-        }
-    }
     
-    private func scheduleBackgroundTask() {
-        let request = BGProcessingTaskRequest(identifier: backgroundTaskIdentifier)
-        request.requiresNetworkConnectivity = false
-        request.requiresExternalPower = false
-        
-        do {
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            print("Could not schedule background task: \(error)")
-        }
-    }
-    
-    private func handleAppRefresh(task: BGProcessingTask) {
-        task.expirationHandler = {
-            task.setTaskCompleted(success: false)
-        }
-        
-        // Schedule the next background task
-        scheduleBackgroundTask()
-        
-        // Check if we need to update the timer
-        if let startTime = timerStartTime {
-            let elapsed = Int(Date().timeIntervalSince(startTime))
-            timeRemaining = max(0, originalDuration - elapsed)
-            
-            if timeRemaining <= 0 {
-                stopTimer()
-                sendTimerCompletedNotification()
-            }
-        }
-        
-        task.setTaskCompleted(success: true)
-    }
     
     func startTimer(time : Int) {
         stopTimer()
-        originalDuration = time
         timeRemaining = time
-        timerStartTime = Date()
+        endTime = Date().addingTimeInterval(TimeInterval(time))
         
-        scheduleBackgroundTask()
+        // Schedule end notification
         scheduleTimerCompletionNotification(timeRemaining: time)
         
+        // Start background task
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.stopTimer()
+        }
+        
         let timer = DispatchSource.makeTimerSource(flags: [], queue: .main)
-        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .milliseconds(100))
+        timer.schedule(deadline: .now(), repeating: .seconds(1))
         
         timer.setEventHandler { [weak self] in
             guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                if self.timeRemaining > 0 {
-                    self.timeRemaining -= 1
-                }
-                
-                if self.timeRemaining <= 0 {
+            if self.timeRemaining > 0 {
+                self.timeRemaining -= 1
+                if self.timeRemaining == 0 {
                     self.stopTimer()
                     self.sendTimerCompletedNotification()
                 }
@@ -329,17 +75,28 @@ import BackgroundTasks
     private func scheduleTimerCompletionNotification(timeRemaining: Int) {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         
-        if timeRemaining > 0 {
-            let content = UNMutableNotificationContent()
-            content.title = "Rest Timer Complete"
-            content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
-            content.sound = .default
-            
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeRemaining), repeats: false)
-            let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
-            
-            UNUserNotificationCenter.current().add(request)
-        }
+        // Schedule completion notification
+        let content = UNMutableNotificationContent()
+        content.title = "Rest Timer Complete"
+        content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
+        content.sound = .default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeRemaining), repeats: false)
+        let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    private func updateNotification() {
+        // Update current notification
+        let content = UNMutableNotificationContent()
+        content.title = "Rest Timer"
+        content.body = "\(timeRemaining)s remaining" + (activeExercise != nil ? " until \(activeExercise!.template.name)" : "")
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        let request = UNNotificationRequest(identifier: "timerUpdate", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request)
     }
     
     private func sendTimerCompletedNotification() {
@@ -354,29 +111,21 @@ import BackgroundTasks
         UNUserNotificationCenter.current().add(request)
     }
     
-    private func updateNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Rest Timer"
-        content.body = "\(timeRemaining)s remaining" + (activeExercise != nil ? " until \(activeExercise!.template.name)" : "")
-        content.sound = nil
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-        let request = UNNotificationRequest(identifier: "timerUpdate", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-    }
-    
     func stopTimer() {
         dispatchTimer?.cancel()
         dispatchTimer = nil
         timeRemaining = 0
-        timerStartTime = nil
-        originalDuration = 0
+        endTime = nil
+        
+        if backgroundTaskID != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+            backgroundTaskID = .invalid
+        }
         
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
     
-    func startWorkout(routine: Routine) {
+        func startWorkout(routine: Routine) {
         currentRoutine = routine
         isWorkoutInProgress = true
         completedSets.removeAll()
@@ -416,3 +165,14 @@ import BackgroundTasks
         return lastExercise.id == exercise.id && setIndex == exercise.sets.count - 1
     }
 }
+
+//extension WorkoutManager: UNUserNotificationCenterDelegate {
+//    func userNotificationCenter(
+//        _ center: UNUserNotificationCenter,
+//        willPresent notification: UNNotification,
+//        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+//    ) {
+//        // Only show in notification center, no banners
+//        completionHandler([.list, .sound])
+//    }
+//}
