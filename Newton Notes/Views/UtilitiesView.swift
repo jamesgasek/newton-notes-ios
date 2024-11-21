@@ -72,6 +72,7 @@ struct PlateCalculatorView: View {
                 }
             }
         }
+        
         .navigationTitle("Plate Calculator")
         .onChange(of: targetWeight) { calculatePlates() }
         .onChange(of: barbellWeight) { calculatePlates() }
@@ -105,6 +106,6 @@ struct Plate: Identifiable {
     let count: Int
 }
 
-#Preview {
-    UtilitiesView()
-}
+//#Preview {
+//    UtilitiesView()
+//}
