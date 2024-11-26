@@ -10,13 +10,19 @@ import UIKit
 import UserNotifications
 import BackgroundTasks
 import os.log
+import Observation
+import ActivityKit
 
-@Observable class WorkoutManager {
+@Observable class WorkoutManager: NSObject {
     var currentRoutine: Routine?
     var completedSets = Set<String>()
     var timeRemaining: Int = 0 {
         didSet {
-            updateNotification()
+            if timeRemaining > 0 {
+                updateLiveActivity()
+            } else {
+                endLiveActivity()
+            }
         }
     }
     var activeExercise: Exercise?
@@ -26,34 +32,85 @@ import os.log
     private var dispatchTimer: DispatchSourceTimer?
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     private var endTime: Date?
-
+    private var currentActivity: Activity<TimerAttributes>?
     
-    init() {
-//        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge]) { granted, error in
-            if granted {
-                print("Notification permission granted")
-            }
-        }
+    override init() {
+        super.init()
         
-//        UNUserNotificationCenter.current().delegate = self
+        // Handle app going to background
+        NotificationCenter.default.addObserver(self,
+                                             selector: #selector(handleAppBackground),
+                                             name: UIApplication.willResignActiveNotification,
+                                             object: nil)
     }
     
+    @objc private func handleAppBackground() {
+        // No need to handle background specially - Live Activity continues in background
+    }
     
+    private func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        
+        let attributes = TimerAttributes(initialSeconds: timeRemaining)
+        let contentState = TimerAttributes.ContentState(
+            endTime: Date().addingTimeInterval(TimeInterval(timeRemaining)),
+            secondsRemaining: timeRemaining
+        )
+        
+        Task {
+            do {
+                let activity = try Activity.request(
+                    attributes: attributes,
+                    contentState: contentState,
+                    pushType: nil
+                )
+                currentActivity = activity
+            } catch {
+                print("Error starting live activity: \(error)")
+            }
+        }
+    }
     
-    func startTimer(time : Int) {
+    private func updateLiveActivity() {
+        guard let activity = currentActivity else { return }
+        
+        Task {
+            let updatedContentState = TimerAttributes.ContentState(
+                endTime: Date().addingTimeInterval(TimeInterval(timeRemaining)),
+                secondsRemaining: timeRemaining
+            )
+            
+            await activity.update(using: updatedContentState)
+        }
+    }
+    
+    private func endLiveActivity() {
+        guard let activity = currentActivity else { return }
+        
+        Task {
+            await activity.end(using: TimerAttributes.ContentState(
+                endTime: Date(),
+                secondsRemaining: 0
+            ), dismissalPolicy: .immediate)
+            
+            currentActivity = nil
+        }
+    }
+    
+    func startTimer(time: Int) {
         stopTimer()
         timeRemaining = time
         endTime = Date().addingTimeInterval(TimeInterval(time))
         
-        // Schedule end notification
-        scheduleTimerCompletionNotification(timeRemaining: time)
+        // Start Live Activity
+        startLiveActivity()
         
         // Start background task
         backgroundTaskID = UIApplication.shared.beginBackgroundTask { [weak self] in
             self?.stopTimer()
         }
         
+        // Create and configure timer
         let timer = DispatchSource.makeTimerSource(flags: [], queue: .main)
         timer.schedule(deadline: .now(), repeating: .seconds(1))
         
@@ -61,71 +118,31 @@ import os.log
             guard let self = self else { return }
             if self.timeRemaining > 0 {
                 self.timeRemaining -= 1
-                if self.timeRemaining == 0 {
-                    self.stopTimer()
-                    self.sendTimerCompletedNotification()
-                }
+            }
+            
+            // Handle timer completion
+            if self.timeRemaining == 0 {
+                self.stopTimer()
             }
         }
         
-        dispatchTimer = timer
         timer.resume()
-    }
-    
-    private func scheduleTimerCompletionNotification(timeRemaining: Int) {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        
-        // Schedule completion notification
-        let content = UNMutableNotificationContent()
-        content.title = "Rest Timer Complete"
-        content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(timeRemaining), repeats: false)
-        let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-    }
-    
-    private func updateNotification() {
-        // Update current notification
-        let content = UNMutableNotificationContent()
-        content.title = "Rest Timer"
-        content.body = "\(timeRemaining)s remaining" + (activeExercise != nil ? " until \(activeExercise!.template.name)" : "")
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-        let request = UNNotificationRequest(identifier: "timerUpdate", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
-    }
-    
-    private func sendTimerCompletedNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Rest Timer Complete"
-        content.body = activeExercise != nil ? "Time to start \(activeExercise!.template.name)" : "Time to start next exercise"
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-        let request = UNNotificationRequest(identifier: "timerComplete", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request)
+        dispatchTimer = timer
     }
     
     func stopTimer() {
         dispatchTimer?.cancel()
         dispatchTimer = nil
-        timeRemaining = 0
-        endTime = nil
         
         if backgroundTaskID != .invalid {
             UIApplication.shared.endBackgroundTask(backgroundTaskID)
             backgroundTaskID = .invalid
         }
         
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        endLiveActivity()
     }
     
-        func startWorkout(routine: Routine) {
+    func startWorkout(routine: Routine) {
         currentRoutine = routine
         isWorkoutInProgress = true
         completedSets.removeAll()
@@ -166,13 +183,9 @@ import os.log
     }
 }
 
-//extension WorkoutManager: UNUserNotificationCenterDelegate {
-//    func userNotificationCenter(
-//        _ center: UNUserNotificationCenter,
-//        willPresent notification: UNNotification,
-//        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-//    ) {
-//        // Only show in notification center, no banners
-//        completionHandler([.list, .sound])
-//    }
-//}
+extension WorkoutManager {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // No need to handle notifications - Live Activity is used instead
+        completionHandler([])
+    }
+}

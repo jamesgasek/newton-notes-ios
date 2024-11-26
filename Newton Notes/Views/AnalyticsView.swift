@@ -24,9 +24,21 @@ struct AddLogEntryView: View {
     @State private var customName: String = ""
     @State private var value: Double?
     @State private var chooseExisting: Bool = true
+    @State private var isCumulative: Bool = false
+    @State private var unit: String = ""
+    @State private var dailyTotal: Double = 0
     
     private var uniqueNames: [String] {
         Array(Set(existingLogs.map { $0.name })).sorted()
+    }
+    
+    private var selectedLogInfo: (isCumulative: Bool, unit: String)? {
+        if chooseExisting, !selectedName.isEmpty {
+            if let existingLog = existingLogs.first(where: { $0.name == selectedName }) {
+                return (existingLog.isActuallyCumulative, existingLog.actualUnit)
+            }
+        }
+        return nil
     }
     
     var body: some View {
@@ -42,8 +54,11 @@ struct AddLogEntryView: View {
                         }
                         .pickerStyle(.segmented)
                     }
+                    
                     if !chooseExisting || uniqueNames.isEmpty {
                         TextField("New Category Name", text: $customName)
+                        TextField("Unit (optional)", text: $unit)
+                        Toggle("Cumulative Daily Tracking", isOn: $isCumulative)
                     } else {
                         Picker("Select Category", selection: $selectedName) {
                             Text("Select a category").tag("")
@@ -52,6 +67,15 @@ struct AddLogEntryView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        
+                        if let info = selectedLogInfo {
+                            if !info.unit.isEmpty {
+                                Text("Unit: \(info.unit)")
+                            }
+                            if info.isCumulative {
+                                Text("Daily cumulative tracking enabled")
+                            }
+                        }
                     }
                 } header: {
                     Text(uniqueNames.isEmpty ? "Create your first tracking category" : "What do you want to track?")
@@ -61,11 +85,20 @@ struct AddLogEntryView: View {
                     HStack {
                         TextField("Value", value: $value, format: .number)
                             .keyboardType(.decimalPad)
+                        if let info = selectedLogInfo, info.isCumulative || (!chooseExisting && isCumulative) {
+                            Spacer()
+                            Text("Total: \(dailyTotal + (value ?? 0), specifier: "%.1f")")
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
-                    Text("Enter Today's Value")
+                    Text("Enter Value")
                 } footer: {
-                    Text("Track any numeric value like weight lifted, reps completed, or measurements")
+                    if let info = selectedLogInfo, info.isCumulative || (!chooseExisting && isCumulative) {
+                        Text("Values will be added together for the daily total")
+                    } else {
+                        Text("Track any numeric value like weight lifted, reps completed, or measurements")
+                    }
                 }
             }
             .navigationTitle("Add Progress Entry")
@@ -78,17 +111,43 @@ struct AddLogEntryView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        // Use customName for first entry or when creating new, otherwise use selectedName
-                        let name = (uniqueNames.isEmpty || !chooseExisting) ? customName : selectedName
-                        if !name.isEmpty, let actualValue = value {
-                            let log = AnalyticsLog(name: name, value: actualValue)
-                            modelContext.insert(log)
-                            dismiss()
-                        }
+                        saveEntry()
                     }
                     .disabled(value == nil || (uniqueNames.isEmpty ? customName.isEmpty : (!chooseExisting ? customName.isEmpty : selectedName.isEmpty)))
                 }
             }
+            .onAppear {
+                loadDailyTotal()
+            }
+        }
+    }
+    
+    private func loadDailyTotal() {
+        guard let info = selectedLogInfo, info.isCumulative else { return }
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        
+        dailyTotal = existingLogs
+            .filter { $0.name == selectedName && $0.timestamp >= today && $0.timestamp < tomorrow }
+            .reduce(0) { $0 + $1.value }
+    }
+    
+    private func saveEntry() {
+        let name = (uniqueNames.isEmpty || !chooseExisting) ? customName : selectedName
+        let actualUnit = chooseExisting ? (selectedLogInfo?.unit ?? "") : unit
+        let actualIsCumulative = chooseExisting ? (selectedLogInfo?.isCumulative ?? false) : isCumulative
+        
+        if !name.isEmpty, let actualValue = value {
+            let log = AnalyticsLog(
+                name: name,
+                value: actualValue,
+                isCumulative: actualIsCumulative,
+                unit: actualUnit
+            )
+            modelContext.insert(log)
+            dismiss()
         }
     }
 }
@@ -175,166 +234,112 @@ struct WorkoutHistoryView: View {
 }
 
 struct ChartCard: View {
-//    let name: String
-//    let logs: [AnalyticsLog]
     let name: String
     let logs: [AnalyticsLog]
-    let timeRange: TimeRange  // Add this parameter
+    let timeRange: TimeRange
+    
+    private var isCumulative: Bool {
+        logs.first?.isActuallyCumulative ?? false
+    }
+    
+    private var unit: String {
+        logs.first?.actualUnit ?? ""
+    }
+    
+    private var processedLogs: [(date: Date, value: Double)] {
+        guard !logs.isEmpty else { return [] }
+        
+        let calendar = Calendar.current
+        let sortedLogs = logs.sorted { $0.timestamp < $1.timestamp }
+        
+        if isCumulative {
+            // Group by day and sum values
+            var dailyTotals: [Date: Double] = [:]
+            
+            for log in sortedLogs {
+                let day = calendar.startOfDay(for: log.timestamp)
+                dailyTotals[day, default: 0] += log.value
+            }
+            
+            return dailyTotals.map { ($0.key, $0.value) }
+                .sorted { $0.0 < $1.0 }
+        } else {
+            return sortedLogs.map { (date: $0.timestamp, value: $0.value) }
+        }
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        switch timeRange {
+        case .week:
+            formatter.dateFormat = "EEE"
+        case .month:
+            formatter.dateFormat = "MMM d"
+        case .year:
+            formatter.dateFormat = "MMM"
+        case .all:
+            formatter.dateFormat = "MMM yyyy"
+        }
+        return formatter
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(name)
                     .font(.headline)
+                if !unit.isEmpty {
+                    Text("(\(unit))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
                 Text("\(logs.count) entries")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-//            Chart {
-//                ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
-//                    LineMark(
-//                        x: .value("Date", item.timestamp),
-//                        y: .value("Value ", item.value)
-//                    )
-//                    .symbol(.circle)
-//                    .interpolationMethod(.catmullRom)
-//                }
-//            }
-//            .chartYAxis {
-//                AxisMarks(position: .leading)
-//            }
-//            .chartXAxis {
-//                AxisMarks(values: .stride(by: .day, count: 7)) { value in
-//                    AxisGridLine()
-//                    AxisValueLabel(format: .dateTime.month().day())
-//                }
-//            }
-//            .frame(height: 200)
-//            Chart {
-//                ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
-//                    LineMark(
-//                        x: .value("Date", item.timestamp),
-//                        y: .value("Value", item.value)
-//                    )
-//                    .symbol(.circle)
-//                    .interpolationMethod(.linear) // Changed from .catmullRom to .linear for straight lines
-//                }
-//            }
-//            .chartYAxis {
-//                AxisMarks(position: .leading) {
-//                    AxisValueLabel() // This ensures the value labels show
-//                }
-//            }
-//            .chartXAxis {
-//                AxisMarks { value in
-//                    AxisGridLine()
-//                    AxisValueLabel {
-//                        // Customize date format based on selected time range
-//                        if let date = value.as(Date.self) {
-//                            switch timeRange {  // You'll need to pass timeRange as a parameter
-//                            case .week:
-//                                Text(date, format: .dateTime.weekday())
-//                            case .month:
-//                                Text(date, format: .dateTime.day())
-//                            case .year:
-//                                Text(date, format: .dateTime.month())
-//                            case .all:
-//                                Text(date, format: .dateTime.month().year())
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            .frame(height: 200)
-            Chart {
-                ForEach(logs.sorted { $0.timestamp < $1.timestamp }) { item in
-                    LineMark(
-                        x: .value("Date", item.timestamp),
-                        y: .value("Value", item.value)
-                    )
-                    .symbol(.circle)
-                    .interpolationMethod(.linear)
-                }
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading) {
-                    AxisValueLabel()
-                }
-            }
-            .chartXAxis {
-                // Add appropriate stride based on time range
-                switch timeRange {
-                case .week:
-                    AxisMarks(values: .stride(by: .day, count: 1)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let date = value.as(Date.self) {
-                                Text(date, format: .dateTime.weekday(.abbreviated))
-                            }
-                        }
-                    }
-                case .month:
-                    AxisMarks(values: .stride(by: .day, count: 7)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let date = value.as(Date.self) {
-                                Text(date, format: .dateTime.day())
-                            }
-                        }
-                    }
-                case .year:
-                    AxisMarks(values: .stride(by: .month, count: 1)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let date = value.as(Date.self) {
-                                Text(date, format: .dateTime.month(.abbreviated))
-                            }
-                        }
-                    }
-                case .all:
-                    AxisMarks(values: .stride(by: .month, count: 3)) { value in
-                        AxisGridLine()
-                        AxisValueLabel {
-                            if let date = value.as(Date.self) {
-                                Text(date, format: .dateTime.month(.abbreviated).year())
-                            }
-                        }
-                    }
-                }
-            }
-            .frame(height: 200)
             
-            if let latest = logs.max(by: { $0.timestamp < $1.timestamp }) {
-                HStack {
-                    Text("Latest: \(latest.value, specifier: "%.1f")")
-                        .font(.subheadline)
-                    Spacer()
-                    if let change = calculateChange() {
-                        Text(change >= 0 ? "↑" : "↓")
-                            .foregroundColor(change >= 0 ? .green : .red)
-                        Text("\(abs(change), specifier: "%.1f")")
-                            .font(.subheadline)
-                            .foregroundColor(change >= 0 ? .green : .red)
+            if !processedLogs.isEmpty {
+                Chart {
+                    ForEach(processedLogs, id: \.date) { item in
+                        LineMark(
+                            x: .value("Date", item.date),
+                            y: .value("Value", item.value)
+                        )
+                        .symbol(.circle)
+                        .interpolationMethod(.catmullRom)
                     }
                 }
+                .frame(height: 200)
+                .chartXAxis {
+                    AxisMarks { value in
+                        if let date = value.as(Date.self) {
+                            AxisValueLabel {
+                                Text(dateFormatter.string(from: date))
+                            }
+                        }
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisValueLabel {
+                            if let doubleValue = value.as(Double.self) {
+                                Text(String(format: "%.1f", doubleValue))
+                            }
+                        }
+                    }
+                }
+            } else {
+                Text("No data for selected time range")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }
         .padding()
         .background(Color(.systemBackground))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(radius: 2)
     }
-    
-    private func calculateChange() -> Double? {
-        let sortedLogs = logs.sorted { $0.timestamp < $1.timestamp }
-        guard let latest = sortedLogs.last,
-              let previous = sortedLogs.dropLast().last else {
-            return nil
-        }
-        return latest.value - previous.value
-    }
-    
 }
 
 extension Date {

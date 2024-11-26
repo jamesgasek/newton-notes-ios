@@ -55,20 +55,30 @@ public class ExerciseSet {
 
 @Model
 class AnalyticsLog: Identifiable {
-    var id: UUID
+    @Attribute(.unique) let id: UUID
     var name: String
     var value: Double
     var timestamp: Date
+    var isCumulative: Bool?
+    var unit: String?
     
-    init(name: String, value: Double,  timestamp: Date = Date()) {
+    var isActuallyCumulative: Bool {
+        isCumulative ?? false
+    }
+    
+    var actualUnit: String {
+        unit ?? ""
+    }
+    
+    init(name: String, value: Double, timestamp: Date = Date(), isCumulative: Bool = false, unit: String = "") {
         self.id = UUID()
         self.name = name
         self.value = value
         self.timestamp = timestamp
+        self.isCumulative = isCumulative
+        self.unit = unit
     }
 }
-
-
 
 //for import / export logic
 
@@ -107,5 +117,3 @@ struct AnalyticsLogData: Codable {
     var unit: String
     var timestamp: Date
 }
-
-

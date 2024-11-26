@@ -7,6 +7,16 @@ struct NavigationView: View {
     
     private let timerBarHeight: CGFloat = 44
     
+    init() {
+        // Configure tab bar appearance
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        
+        // Apply the tab bar appearance settings
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+    }
+    
     var body: some View {
         TabView {
             RoutinesView()
