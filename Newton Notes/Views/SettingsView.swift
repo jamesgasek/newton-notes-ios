@@ -27,20 +27,20 @@ struct SettingsView: View {
                     }
                 }
                 
-                Section("Appearance") {
-                    Picker("Theme", selection: Binding(
-                        get: { themeManager.currentTheme.rawValue },
-                        set: { newValue in
-                            if let theme = AppTheme(rawValue: newValue) {
-                                themeManager.setTheme(theme)
-                            }
-                        }
-                    )) {
-                        Text("Light").tag(AppTheme.light.rawValue)
-                        Text("Dark").tag(AppTheme.dark.rawValue)
-                        Text("System").tag(AppTheme.system.rawValue)
-                    }
-                }
+//                Section("Appearance") {
+//                    Picker("Theme", selection: Binding(
+//                        get: { themeManager.currentTheme.rawValue },
+//                        set: { newValue in
+//                            if let theme = AppTheme(rawValue: newValue) {
+//                                themeManager.setTheme(theme)
+//                            }
+//                        }
+//                    )) {
+//                        Text("Light").tag(AppTheme.light.rawValue)
+//                        Text("Dark").tag(AppTheme.dark.rawValue)
+//                        Text("System").tag(AppTheme.system.rawValue)
+//                    }
+//                }
                 
                 Section("About") {
                     Link("Rate App", destination: URL(string: "https://apps.apple.com")!)

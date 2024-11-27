@@ -32,7 +32,7 @@ import ActivityKit
     private var dispatchTimer: DispatchSourceTimer?
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     private var endTime: Date?
-    private var currentActivity: Activity<TimerAttributes>?
+    private var currentActivity: Activity<TimerWidgetAttributes>?
     
     override init() {
         super.init()
@@ -51,20 +51,23 @@ import ActivityKit
     private func startLiveActivity() {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         
-        let attributes = TimerAttributes(initialSeconds: timeRemaining)
-        let contentState = TimerAttributes.ContentState(
+        let attributes = TimerWidgetAttributes(initialSeconds: timeRemaining)
+        let contentState = TimerWidgetAttributes.ContentState(
             endTime: Date().addingTimeInterval(TimeInterval(timeRemaining)),
             secondsRemaining: timeRemaining
         )
         
         Task {
             do {
+                print("Starting live activity")
                 let activity = try Activity.request(
                     attributes: attributes,
                     contentState: contentState,
                     pushType: nil
                 )
+                
                 currentActivity = activity
+                print("Live activity started")
             } catch {
                 print("Error starting live activity: \(error)")
             }
@@ -75,7 +78,7 @@ import ActivityKit
         guard let activity = currentActivity else { return }
         
         Task {
-            let updatedContentState = TimerAttributes.ContentState(
+            let updatedContentState = TimerWidgetAttributes.ContentState(
                 endTime: Date().addingTimeInterval(TimeInterval(timeRemaining)),
                 secondsRemaining: timeRemaining
             )
@@ -88,7 +91,7 @@ import ActivityKit
         guard let activity = currentActivity else { return }
         
         Task {
-            await activity.end(using: TimerAttributes.ContentState(
+            await activity.end(using: TimerWidgetAttributes.ContentState(
                 endTime: Date(),
                 secondsRemaining: 0
             ), dismissalPolicy: .immediate)

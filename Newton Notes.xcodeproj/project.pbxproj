@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C38242712CF78B6200B8CC72 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C38241FC2CF783D400B8CC72 /* WidgetKit.framework */; };
+		C38242722CF78B6200B8CC72 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C38241FE2CF783D400B8CC72 /* SwiftUI.framework */; };
+		C38242832CF78B6500B8CC72 /* TimerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C38242702CF78B6200B8CC72 /* TimerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C33F85AB2CD58BFD00242A84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +27,37 @@
 			remoteGlobalIDString = C33F85972CD58BFB00242A84;
 			remoteInfo = "Newton Notes IOS";
 		};
+		C38242812CF78B6500B8CC72 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C33F85902CD58BFB00242A84 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C382426F2CF78B6200B8CC72;
+			remoteInfo = TimerWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C38242152CF783D700B8CC72 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C38242832CF78B6500B8CC72 /* TimerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C33F85982CD58BFB00242A84 /* Newton Notes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Newton Notes.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C33F85AA2CD58BFD00242A84 /* Newton NotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton NotesTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Newton NotesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C38241FC2CF783D400B8CC72 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C38241FE2CF783D400B8CC72 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		C38242702CF78B6200B8CC72 /* TimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3FC4A0A2CF79D9A00B59B5D /* TimerWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimerWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -35,6 +66,20 @@
 			membershipExceptions = (
 				"Preview Content/AddRoutineView.swift",
 				"Preview Content/GlobalState.swift",
+			);
+			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
+		};
+		C38242872CF78B6500B8CC72 /* Exceptions for "TimerWidget" folder in "TimerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C382426F2CF78B6200B8CC72 /* TimerWidgetExtension */;
+		};
+		C38242892CF78D4A00B8CC72 /* Exceptions for "TimerWidget" folder in "Newton Notes" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TimerWidgetLiveActivity.swift,
 			);
 			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
 		};
@@ -57,6 +102,15 @@
 		C33F85B72CD58BFD00242A84 /* Newton Notes UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Newton Notes UITests";
+			sourceTree = "<group>";
+		};
+		C38242732CF78B6200B8CC72 /* TimerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C38242892CF78D4A00B8CC72 /* Exceptions for "TimerWidget" folder in "Newton Notes" target */,
+				C38242872CF78B6500B8CC72 /* Exceptions for "TimerWidget" folder in "TimerWidgetExtension" target */,
+			);
+			path = TimerWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -83,15 +137,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C382426D2CF78B6200B8CC72 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C38242722CF78B6200B8CC72 /* SwiftUI.framework in Frameworks */,
+				C38242712CF78B6200B8CC72 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		C33F858F2CD58BFB00242A84 = {
 			isa = PBXGroup;
 			children = (
+				C3FC4A0A2CF79D9A00B59B5D /* TimerWidgetExtension.entitlements */,
 				C33F859A2CD58BFB00242A84 /* Newton Notes */,
 				C33F85AD2CD58BFD00242A84 /* Newton Notes Tests */,
 				C33F85B72CD58BFD00242A84 /* Newton Notes UITests */,
+				C38242732CF78B6200B8CC72 /* TimerWidget */,
+				C38241FB2CF783D400B8CC72 /* Frameworks */,
 				C33F85992CD58BFB00242A84 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -102,8 +168,18 @@
 				C33F85982CD58BFB00242A84 /* Newton Notes.app */,
 				C33F85AA2CD58BFD00242A84 /* Newton NotesTests.xctest */,
 				C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */,
+				C38242702CF78B6200B8CC72 /* TimerWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C38241FB2CF783D400B8CC72 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C38241FC2CF783D400B8CC72 /* WidgetKit.framework */,
+				C38241FE2CF783D400B8CC72 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -116,10 +192,12 @@
 				C33F85942CD58BFB00242A84 /* Sources */,
 				C33F85952CD58BFB00242A84 /* Frameworks */,
 				C33F85962CD58BFB00242A84 /* Resources */,
+				C38242152CF783D700B8CC72 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C38242822CF78B6500B8CC72 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C33F859A2CD58BFB00242A84 /* Newton Notes */,
@@ -177,6 +255,28 @@
 			productReference = C33F85B42CD58BFD00242A84 /* Newton NotesUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		C382426F2CF78B6200B8CC72 /* TimerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C38242842CF78B6500B8CC72 /* Build configuration list for PBXNativeTarget "TimerWidgetExtension" */;
+			buildPhases = (
+				C382426C2CF78B6200B8CC72 /* Sources */,
+				C382426D2CF78B6200B8CC72 /* Frameworks */,
+				C382426E2CF78B6200B8CC72 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C38242732CF78B6200B8CC72 /* TimerWidget */,
+			);
+			name = TimerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = TimerWidgetExtension;
+			productReference = C38242702CF78B6200B8CC72 /* TimerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -198,6 +298,9 @@
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = C33F85972CD58BFB00242A84;
 					};
+					C382426F2CF78B6200B8CC72 = {
+						CreatedOnToolsVersion = 16.1;
+					};
 				};
 			};
 			buildConfigurationList = C33F85932CD58BFB00242A84 /* Build configuration list for PBXProject "Newton Notes" */;
@@ -217,6 +320,7 @@
 				C33F85972CD58BFB00242A84 /* Newton Notes */,
 				C33F85A92CD58BFD00242A84 /* Newton NotesTests */,
 				C33F85B32CD58BFD00242A84 /* Newton NotesUITests */,
+				C382426F2CF78B6200B8CC72 /* TimerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -237,6 +341,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C33F85B22CD58BFD00242A84 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C382426E2CF78B6200B8CC72 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -267,6 +378,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C382426C2CF78B6200B8CC72 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -279,6 +397,11 @@
 			isa = PBXTargetDependency;
 			target = C33F85972CD58BFB00242A84 /* Newton Notes */;
 			targetProxy = C33F85B52CD58BFD00242A84 /* PBXContainerItemProxy */;
+		};
+		C38242822CF78B6500B8CC72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C382426F2CF78B6200B8CC72 /* TimerWidgetExtension */;
+			targetProxy = C38242812CF78B6500B8CC72 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -477,7 +600,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes-IOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -495,7 +618,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes-IOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -512,6 +635,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes-IOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -528,6 +652,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes-IOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -535,6 +660,64 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = "Newton Notes IOS";
+			};
+			name = Release;
+		};
+		C38242852CF78B6500B8CC72 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TimerWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8R78TU7V89;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes.TimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C38242862CF78B6500B8CC72 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TimerWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8R78TU7V89;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jamesgasek.Newton-Notes.TimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -573,6 +756,15 @@
 			buildConfigurations = (
 				C33F85C52CD58BFD00242A84 /* Debug */,
 				C33F85C62CD58BFD00242A84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C38242842CF78B6500B8CC72 /* Build configuration list for PBXNativeTarget "TimerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C38242852CF78B6500B8CC72 /* Debug */,
+				C38242862CF78B6500B8CC72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

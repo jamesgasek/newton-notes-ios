@@ -18,7 +18,7 @@ enum AppTheme: String {
 }
 
 class ThemeManager: ObservableObject {
-    @AppStorage("theme") private var storedTheme: String = "sys"
+    private var storedTheme: String = "sys"
     
     var currentTheme: AppTheme {
         AppTheme(rawValue: storedTheme) ?? .system
