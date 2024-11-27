@@ -5,69 +5,19 @@
 //  Created by James Gasek on 11/27/24.
 //
 
-import ActivityKit
-import WidgetKit
-import SwiftUI
-
-//struct TimerWidgetAttributes: ActivityAttributes {
-//    public struct ContentState: Codable, Hashable {
-//        var emoji: String
-//    }
-//
-//    var name: String
-//}
-
-//struct TimerWidgetLiveActivity: Widget {
-//    var body: some WidgetConfiguration {
-//        ActivityConfiguration(for: TimerWidgetAttributes.self) { context in
-//            // Lock screen/banner UI goes here
-//            VStack {
-//                Text("Hello \(context.state.emoji)")
-//            }
-//            .activityBackgroundTint(Color.cyan)
-//            .activitySystemActionForegroundColor(Color.black)
-//
-//        } dynamicIsland: { context in
-//            DynamicIsland {
-//                // Expanded UI goes here.  Compose the expanded UI through
-//                // various regions, like leading/trailing/center/bottom
-//                DynamicIslandExpandedRegion(.leading) {
-//                    Text("Leading")
-//                }
-//                DynamicIslandExpandedRegion(.trailing) {
-//                    Text("Trailing")
-//                }
-//                DynamicIslandExpandedRegion(.bottom) {
-//                    Text("Bottom \(context.state.emoji)")
-//                    // more content
-//                }
-//            } compactLeading: {
-//                Text("L")
-//            } compactTrailing: {
-//                Text("T \(context.state.emoji)")
-//            } minimal: {
-//                Text(context.state.emoji)
-//            }
-//            .widgetURL(URL(string: "http://www.apple.com"))
-//            .keylineTint(Color.red)
-//        }
-//    }
-//}
 import SwiftUI
 import WidgetKit
 import ActivityKit
 import Foundation
 
 struct TimerWidgetAttributes: ActivityAttributes {
-    var initialSeconds: Int
+    var name: String
     
     public struct ContentState: Codable, Hashable {
-        var endTime: Date
-        var secondsRemaining: Int
+        var timerRange: ClosedRange<Date>
+        var isWorkout: Bool
     }
 }
-
-
 
 struct TimerWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -75,98 +25,97 @@ struct TimerWidgetLiveActivity: Widget {
             // Live Activity UI (notification center and dynamic island expanded)
             VStack(spacing: 2) {
                 HStack {
-                    Label("Rest Timer", systemImage: "timer")
+                    Label(context.attributes.name, systemImage: context.state.isWorkout ? "figure.run" : "timer")
                         .font(.headline)
-//                        .foregroundColor(.white)
                     Spacer()
-                    Text(timerText(for: context.state.secondsRemaining))
+                    Text(timerInterval: context.state.timerRange)
                         .font(.title2.monospacedDigit())
-//                        .foregroundColor(.white)
+                        .contentTransition(.numericText())
                 }
                 .padding(.horizontal)
                 
-                ProgressView(value: Double(context.attributes.initialSeconds - context.state.secondsRemaining), total: Double(context.attributes.initialSeconds))
-                    .tint(.blue)
+                ProgressView(value: progressValue(for: context.state.timerRange))
+                    .tint(context.state.isWorkout ? .green : .blue)
                     .padding(.horizontal)
             }
             .padding(.vertical, 20)
-//            .activityBackgroundTint(.black.opacity(0.8))
             .activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.8))
-//            .activitySystemActionForegroundColor(.white)
             
-        }
-        dynamicIsland: { context in
+        } dynamicIsland: { context in
             DynamicIsland {
                 // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
-                    Label("Rest Timer", systemImage: "timer")
+                    Label(context.attributes.name, systemImage: context.state.isWorkout ? "figure.run" : "timer")
                         .font(.headline)
-//                        .foregroundColor(.white)
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text(timerText(for: context.state.secondsRemaining))
+                    Text(timerInterval: context.state.timerRange)
                         .font(.title2)
-//                        .foregroundColor(.white)
                         .monospacedDigit()
+                        .contentTransition(.numericText())
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-                    ProgressView(value: Double(context.state.secondsRemaining), total: Double(context.attributes.initialSeconds))
-                        .tint(.blue)
+                    ProgressView(value: progressValue(for: context.state.timerRange))
+                        .tint(context.state.isWorkout ? .green : .blue)
                 }
             } compactLeading: {
                 // Compact leading UI (Dynamic Island)
                 Label {
-                    Text(timerText(for: context.state.secondsRemaining))
+                    Text(timerInterval: context.state.timerRange, showsHours: false)
                 }
                 icon: {
-                    Image(systemName: "timer")
+                    Image(systemName: context.state.isWorkout ? "figure.run" : "timer")
                 }
                 .font(.caption2)
             } compactTrailing: {
                 // Compact trailing UI (Dynamic Island)
-                Text(timerText(for: context.state.secondsRemaining))
+                Text(timerInterval: context.state.timerRange, showsHours: false)
                     .monospacedDigit()
                     .font(.caption2)
+                    .contentTransition(.numericText())
             } minimal: {
                 // Minimal UI (Dynamic Island)
-                Image(systemName: "timer")
+                Image(systemName: context.state.isWorkout ? "figure.run" : "timer")
             }
         }
     }
     
-    private func timerText(for seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%d:%02d", minutes, remainingSeconds)
+    private func progressValue(for range: ClosedRange<Date>) -> Double {
+        let now = Date()
+        let total = range.upperBound.timeIntervalSince(range.lowerBound)
+        let remaining = range.upperBound.timeIntervalSince(now)
+        return 1.0 - (remaining / total) // Convert from remaining to progress
     }
 }
 
-
+// Preview helpers
 extension TimerWidgetAttributes {
     fileprivate static var preview: TimerWidgetAttributes {
-        TimerWidgetAttributes(initialSeconds: 90)
+        TimerWidgetAttributes(name: "Rest Timer")
     }
 }
 
 extension TimerWidgetAttributes.ContentState {
-    fileprivate static var smiley: TimerWidgetAttributes.ContentState {
-//        TimerWidgetAttributes.ContentState(emoji: "😀")
-        
-        TimerWidgetAttributes.ContentState(endTime: Date.distantFuture, secondsRemaining: 90)
-     }
+    fileprivate static var rest: TimerWidgetAttributes.ContentState {
+        TimerWidgetAttributes.ContentState(
+            timerRange: Date()...(Date().addingTimeInterval(90)),
+            isWorkout: false
+        )
+    }
      
-     fileprivate static var starEyes: TimerWidgetAttributes.ContentState {
-//         TimerWidgetAttributes.ContentState(emoji: "🤩")
-         
-         TimerWidgetAttributes.ContentState(endTime: Date.distantFuture, secondsRemaining: 10)
-     }
+    fileprivate static var workout: TimerWidgetAttributes.ContentState {
+        TimerWidgetAttributes.ContentState(
+            timerRange: Date()...(Date().addingTimeInterval(30)),
+            isWorkout: true
+        )
+    }
 }
 
 #Preview("Notification", as: .content, using: TimerWidgetAttributes.preview) {
    TimerWidgetLiveActivity()
 } contentStates: {
-    TimerWidgetAttributes.ContentState.smiley
-    TimerWidgetAttributes.ContentState.starEyes
+    TimerWidgetAttributes.ContentState.rest
+    TimerWidgetAttributes.ContentState.workout
 }

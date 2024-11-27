@@ -57,7 +57,7 @@ struct NavigationView: View {
                         Spacer()
                         
                         Button(action: {
-                            workoutManager.stopTimer()
+                            workoutManager.skipCurrentPeriod()
                         }) {
                             HStack(spacing: 4) {
                                 Text("Skip")
