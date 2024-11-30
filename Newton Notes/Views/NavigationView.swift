@@ -23,20 +23,40 @@ struct NavigationView: View {
                 .tabItem {
                     Label("Routines", systemImage: "dumbbell.fill")
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if workoutManager.currentRoutine != nil {
+                        Spacer().frame(height: timerBarHeight)
+                    }
+                }
             
             WorkoutHistoryView()
                 .tabItem {
                     Label("Analytics", systemImage: "chart.line.uptrend.xyaxis")
+                }
+                .safeAreaInset(edge: .bottom) {
+                    if workoutManager.currentRoutine != nil {
+                        Spacer().frame(height: timerBarHeight)
+                    }
                 }
             
             UtilitiesView()
                 .tabItem {
                     Label("Utilities", systemImage: "wrench.and.screwdriver")
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if workoutManager.currentRoutine != nil {
+                        Spacer().frame(height: timerBarHeight)
+                    }
+                }
             
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
+                }
+                .safeAreaInset(edge: .bottom) {
+                    if workoutManager.currentRoutine != nil {
+                        Spacer().frame(height: timerBarHeight)
+                    }
                 }
             
         }

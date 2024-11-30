@@ -61,6 +61,7 @@ class AnalyticsLog: Identifiable {
     var timestamp: Date
     var isCumulative: Bool?
     var unit: String?
+    var dailyGoal: Double?
     
     var isActuallyCumulative: Bool {
         isCumulative ?? false
@@ -70,13 +71,18 @@ class AnalyticsLog: Identifiable {
         unit ?? ""
     }
     
-    init(name: String, value: Double, timestamp: Date = Date(), isCumulative: Bool = false, unit: String = "") {
+    var actualDailyGoal: Double {
+        dailyGoal ?? 0
+    }
+    
+    init(name: String, value: Double, timestamp: Date = Date(), isCumulative: Bool = false, unit: String = "", dailyGoal: Double? = nil) {
         self.id = UUID()
         self.name = name
         self.value = value
         self.timestamp = timestamp
         self.isCumulative = isCumulative
         self.unit = unit
+        self.dailyGoal = dailyGoal
     }
 }
 

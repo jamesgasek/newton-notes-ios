@@ -27,15 +27,20 @@ struct AddLogEntryView: View {
     @State private var isCumulative: Bool = false
     @State private var unit: String = ""
     @State private var dailyTotal: Double = 0
+    @State private var dailyGoal: Double?
+    
+    init(preselectedName: String = "") {
+        _selectedName = State(initialValue: preselectedName)
+    }
     
     private var uniqueNames: [String] {
         Array(Set(existingLogs.map { $0.name })).sorted()
     }
     
-    private var selectedLogInfo: (isCumulative: Bool, unit: String)? {
+    private var selectedLogInfo: (isCumulative: Bool, unit: String, dailyGoal: Double?)? {
         if chooseExisting, !selectedName.isEmpty {
             if let existingLog = existingLogs.first(where: { $0.name == selectedName }) {
-                return (existingLog.isActuallyCumulative, existingLog.actualUnit)
+                return (existingLog.isActuallyCumulative, existingLog.actualUnit, existingLog.dailyGoal)
             }
         }
         return nil
@@ -59,6 +64,15 @@ struct AddLogEntryView: View {
                         TextField("New Category Name", text: $customName)
                         TextField("Unit (optional)", text: $unit)
                         Toggle("Cumulative Daily Tracking", isOn: $isCumulative)
+                        if isCumulative {
+                            HStack {
+                                Text("Daily Goal")
+                                Spacer()
+                                TextField("Optional", value: $dailyGoal, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
                     } else {
                         Picker("Select Category", selection: $selectedName) {
                             Text("Select a category").tag("")
@@ -74,11 +88,18 @@ struct AddLogEntryView: View {
                             }
                             if info.isCumulative {
                                 Text("Daily cumulative tracking enabled")
+                                if let goal = info.dailyGoal {
+                                    Text("Daily Goal: \(goal, specifier: "%.1f")")
+                                }
                             }
                         }
                     }
                 } header: {
                     Text(uniqueNames.isEmpty ? "Create your first tracking category" : "What do you want to track?")
+                } footer: {
+                    if !chooseExisting || uniqueNames.isEmpty {
+                        Text("Use Cumulative Daily Tracking for items you have a daily goal for- for instance, your daily water intake or protein intake. Throughout the day, you'll be able to view your progress, and at the end of the day, a single cumulative value will be recorded.")
+                    }
                 }
                 
                 Section {
@@ -87,8 +108,15 @@ struct AddLogEntryView: View {
                             .keyboardType(.decimalPad)
                         if let info = selectedLogInfo, info.isCumulative || (!chooseExisting && isCumulative) {
                             Spacer()
-                            Text("Total: \(dailyTotal + (value ?? 0), specifier: "%.1f")")
-                                .foregroundStyle(.secondary)
+                            VStack(alignment: .trailing) {
+                                Text("Total: \(dailyTotal + (value ?? 0), specifier: "%.1f")")
+                                    .foregroundStyle(.secondary)
+                                if let goal = info.dailyGoal ?? (isCumulative ? dailyGoal : nil) {
+                                    let total = dailyTotal + (value ?? 0)
+                                    Text("\(Int((total/goal) * 100))% of goal")
+                                        .foregroundStyle(total >= goal ? .green : .secondary)
+                                }
+                            }
                         }
                     }
                 } header: {
@@ -138,13 +166,15 @@ struct AddLogEntryView: View {
         let name = (uniqueNames.isEmpty || !chooseExisting) ? customName : selectedName
         let actualUnit = chooseExisting ? (selectedLogInfo?.unit ?? "") : unit
         let actualIsCumulative = chooseExisting ? (selectedLogInfo?.isCumulative ?? false) : isCumulative
+        let actualDailyGoal = chooseExisting ? selectedLogInfo?.dailyGoal : (isCumulative ? dailyGoal : nil)
         
         if !name.isEmpty, let actualValue = value {
             let log = AnalyticsLog(
                 name: name,
                 value: actualValue,
                 isCumulative: actualIsCumulative,
-                unit: actualUnit
+                unit: actualUnit,
+                dailyGoal: actualDailyGoal
             )
             modelContext.insert(log)
             dismiss()
@@ -152,7 +182,6 @@ struct AddLogEntryView: View {
     }
 }
 
-// Updated WorkoutHistoryView
 struct WorkoutHistoryView: View {
     @Query private var logs: [AnalyticsLog]
     @Environment(\.modelContext) private var modelContext
@@ -205,11 +234,10 @@ struct WorkoutHistoryView: View {
                         LazyVStack(spacing: 20) {
                             ForEach(uniqueNames, id: \.self) { name in
                                 ChartCard(
-                                        name: name,
-                                        logs: filterLogs(logs.filter { $0.name == name }),
-                                        timeRange: selectedTimeRange
-
-                                    )
+                                    name: name,
+                                    logs: filterLogs(logs.filter { $0.name == name }),
+                                    timeRange: selectedTimeRange
+                                )
                             }
                         }
                         .padding()
@@ -237,6 +265,7 @@ struct ChartCard: View {
     let name: String
     let logs: [AnalyticsLog]
     let timeRange: TimeRange
+    @State private var showingAddEntry = false
     
     private var isCumulative: Bool {
         logs.first?.isActuallyCumulative ?? false
@@ -244,6 +273,10 @@ struct ChartCard: View {
     
     private var unit: String {
         logs.first?.actualUnit ?? ""
+    }
+    
+    private var dailyGoal: Double? {
+        logs.first?.dailyGoal
     }
     
     private var processedLogs: [(date: Date, value: Double)] {
@@ -294,6 +327,11 @@ struct ChartCard: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
+                if isCumulative, let goal = dailyGoal {
+                    Text("Goal: \(goal, specifier: "%.1f")")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Text("\(logs.count) entries")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -307,7 +345,21 @@ struct ChartCard: View {
                             y: .value("Value", item.value)
                         )
                         .symbol(.circle)
+                        .foregroundStyle(isCumulative && dailyGoal != nil ? .blue : .primary)
                         .interpolationMethod(.catmullRom)
+                    }
+                    
+                    if isCumulative, let goal = dailyGoal {
+                        RuleMark(
+                            y: .value("Goal", goal)
+                        )
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                        .foregroundStyle(.green)
+                        .annotation(position: .trailing) {
+                            Text("Goal")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
                     }
                 }
                 .frame(height: 200)
@@ -338,7 +390,17 @@ struct ChartCard: View {
         .padding()
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(.systemGray5), lineWidth: 1)
+        )
         .shadow(radius: 2)
+        .onTapGesture {
+            showingAddEntry = true
+        }
+        .sheet(isPresented: $showingAddEntry) {
+            AddLogEntryView(preselectedName: name)
+        }
     }
 }
 

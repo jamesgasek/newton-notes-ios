@@ -5,7 +5,9 @@ struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var manager: WorkoutManager
     @Environment(\.modelContext) private var modelContext
-    @FocusState private var focusedField: Bool  // Change to simple String identifier
+    // @FocusState private var focusedField: Bool  // Change to simple String identifier
+    @FocusState private var focusedField: Bool
+
     
     init(routine: Routine, workoutManager: WorkoutManager) {
         self.routine = routine

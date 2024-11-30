@@ -55,3 +55,4 @@ struct Newton_Notes_App: App {
         .modelContainer(container)
     }
 }
+    

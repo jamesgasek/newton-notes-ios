@@ -15,9 +15,9 @@ struct TimerWidgetAttributes: ActivityAttributes {
     
     public struct ContentState: Codable, Hashable {
         var timerRange: ClosedRange<Date>
-        var isWorkout: Bool
     }
 }
+
 
 struct TimerWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
@@ -25,27 +25,24 @@ struct TimerWidgetLiveActivity: Widget {
             // Live Activity UI (notification center and dynamic island expanded)
             VStack(spacing: 2) {
                 HStack {
-                    Label(context.attributes.name, systemImage: context.state.isWorkout ? "figure.run" : "timer")
+                    Label(context.attributes.name, systemImage: "timer")
                         .font(.headline)
                     Spacer()
                     Text(timerInterval: context.state.timerRange)
                         .font(.title2.monospacedDigit())
                         .contentTransition(.numericText())
+                        .multilineTextAlignment(.trailing)  // Add this
                 }
                 .padding(.horizontal)
                 
-                ProgressView(value: progressValue(for: context.state.timerRange))
-                    .tint(context.state.isWorkout ? .green : .blue)
-                    .padding(.horizontal)
             }
             .padding(.vertical, 20)
             .activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.8))
             
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
-                    Label(context.attributes.name, systemImage: context.state.isWorkout ? "figure.run" : "timer")
+                    Label(context.attributes.name, systemImage: "timer")
                         .font(.headline)
                 }
                 
@@ -54,11 +51,12 @@ struct TimerWidgetLiveActivity: Widget {
                         .font(.title2)
                         .monospacedDigit()
                         .contentTransition(.numericText())
+                        .multilineTextAlignment(.trailing)  // Add this
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-                    ProgressView(value: progressValue(for: context.state.timerRange))
-                        .tint(context.state.isWorkout ? .green : .blue)
+//                    ProgressView(value: progressValue(for: context.state.timerRange))
+//                        .tint(context.state.isWorkout ? .green : .blue)
                 }
             } compactLeading: {
                 // Compact leading UI (Dynamic Island)
@@ -66,7 +64,7 @@ struct TimerWidgetLiveActivity: Widget {
                     Text(timerInterval: context.state.timerRange, showsHours: false)
                 }
                 icon: {
-                    Image(systemName: context.state.isWorkout ? "figure.run" : "timer")
+                    Image(systemName: "timer")
                 }
                 .font(.caption2)
             } compactTrailing: {
@@ -75,18 +73,12 @@ struct TimerWidgetLiveActivity: Widget {
                     .monospacedDigit()
                     .font(.caption2)
                     .contentTransition(.numericText())
+                    .multilineTextAlignment(.trailing)  // Add this
             } minimal: {
                 // Minimal UI (Dynamic Island)
-                Image(systemName: context.state.isWorkout ? "figure.run" : "timer")
+                Image(systemName: "timer")
             }
         }
-    }
-    
-    private func progressValue(for range: ClosedRange<Date>) -> Double {
-        let now = Date()
-        let total = range.upperBound.timeIntervalSince(range.lowerBound)
-        let remaining = range.upperBound.timeIntervalSince(now)
-        return 1.0 - (remaining / total) // Convert from remaining to progress
     }
 }
 
@@ -100,15 +92,13 @@ extension TimerWidgetAttributes {
 extension TimerWidgetAttributes.ContentState {
     fileprivate static var rest: TimerWidgetAttributes.ContentState {
         TimerWidgetAttributes.ContentState(
-            timerRange: Date()...(Date().addingTimeInterval(90)),
-            isWorkout: false
+            timerRange: Date()...(Date().addingTimeInterval(90))
         )
     }
      
     fileprivate static var workout: TimerWidgetAttributes.ContentState {
         TimerWidgetAttributes.ContentState(
-            timerRange: Date()...(Date().addingTimeInterval(30)),
-            isWorkout: true
+            timerRange: Date()...(Date().addingTimeInterval(30))
         )
     }
 }
