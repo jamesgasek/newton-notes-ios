@@ -1,16 +1,46 @@
 import SwiftUI
 import SwiftData
 
+
 struct EditRoutineView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var routine: Routine
     @Query(sort: \ExerciseTemplate.name) private var availableTemplates: [ExerciseTemplate]
     @State private var showingAddExercise = false
+    @State private var editingName = false
+    @State private var routineName: String
+    
+    init(routine: Routine) {
+        self.routine = routine
+        _routineName = State(initialValue: routine.name)
+    }
     
     var body: some View {
         List {
-            Section("Exercises") {
-                ForEach(Array(routine.exercises.enumerated()), id: \.element.id) { index, exercise in
+            Section {
+                if editingName {
+                    TextField("Routine Name", text: $routineName, onCommit: {
+                        routine.name = routineName
+                        try? modelContext.save()
+                        editingName = false
+                    })
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                } else {
+                    HStack {
+                        Text(routine.name)
+                            .font(.headline)
+                        Spacer()
+                        Button(action: { editingName = true }) {
+                            Image(systemName: "pencil")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+            
+            Section {
+                let sortedExercises = routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })
+                ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
                     NavigationLink {
                         ExerciseDetailView(exercise: exercise)
                     } label: {
@@ -24,18 +54,55 @@ struct EditRoutineView: View {
                     }
                 }
                 .onDelete { indexSet in
-                    routine.exercises.remove(atOffsets: indexSet)
+                    // Get sorted exercises
+                    var exercises = routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })
+                    
+                    // Remove the exercises
+                    exercises.remove(atOffsets: indexSet)
+                    
+                    // Update remaining sort orders
+                    for (index, exercise) in exercises.enumerated() {
+                        exercise.sortOrder = index
+                    }
+                    
+                    // Update routine's exercises array
+                    routine.exercises = exercises
+                    
                     try? modelContext.save()
                 }
                 .onMove { source, destination in
-                    routine.exercises.move(fromOffsets: source, toOffset: destination)
+                    // Get sorted exercises
+                    var exercises = routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })
+                    
+                    // Move the exercise
+                    exercises.move(fromOffsets: source, toOffset: destination)
+                    
+                    // Update all sort orders
+                    for (index, exercise) in exercises.enumerated() {
+                        exercise.sortOrder = index
+                    }
+                    
+                    // Update routine's exercises array
+                    routine.exercises = exercises
+                    
                     try? modelContext.save()
                 }
                 
                 Button(action: { showingAddExercise = true }) {
                     Label("Add Exercise", systemImage: "plus")
                 }
+
+
             }
+            header: {
+                Text("Exercises")
+            } footer: {
+                Text("Swipe to delete. Drag to reorder")
+            }
+            
+//            footer: {
+//                Text("Swipe to delete. Drag to reorder")
+//            }
             
             Section("Exercise Library") {
                 ForEach(availableTemplates) { template in
@@ -72,8 +139,14 @@ struct EditRoutineView: View {
             ExerciseSet(weight: 0, reps: 10),
             ExerciseSet(weight: 0, reps: 10)
         ]
-        let newExercise = Exercise(template: template, sets: defaultSets)
-        routine.exercises.append(newExercise)
+        
+        let exercise = Exercise(
+            template: template,
+            sets: defaultSets,
+            sortOrder: routine.exercises.count
+        )
+        
+        routine.exercises.append(exercise)
         try? modelContext.save()
     }
 }

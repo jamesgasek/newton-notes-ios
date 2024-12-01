@@ -39,7 +39,38 @@ struct Newton_Notes_App: App {
                 }
             }
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("Error creating ModelContainer: \(error). Clearing data and creating fresh database.")
+            
+            // Clear the existing database
+            let fileManager = FileManager.default
+            if let url = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                let databaseURL = url.appendingPathComponent("default.store")
+                try? fileManager.removeItem(at: databaseURL)
+            }
+            
+            // Create a fresh database
+            do {
+                let schema = Schema([
+                    Routine.self,
+                    Exercise.self,
+                    ExerciseTemplate.self,
+                    ExerciseSet.self,
+                    AnalyticsLog.self
+                ])
+                
+                let modelConfiguration = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    allowsSave: true
+                )
+                
+                container = try ModelContainer(
+                    for: schema,
+                    configurations: modelConfiguration
+                )
+            } catch {
+                fatalError("Could not create fresh ModelContainer: \(error)")
+            }
         }
     }
     
@@ -55,4 +86,3 @@ struct Newton_Notes_App: App {
         .modelContainer(container)
     }
 }
-    

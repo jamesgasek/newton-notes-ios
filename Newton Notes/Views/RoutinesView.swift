@@ -9,14 +9,14 @@ import SwiftData
 
 struct RoutinesView: View {
     @Environment(WorkoutManager.self) private var workoutManager
-    @Query(sort: \Routine.createdAt, animation: .default) private var routines: [Routine]
+    @Query(sort: \Routine.sortOrder, animation: .default) private var routines: [Routine]
     @State private var showingAddRoutine = false
     @State private var selectedRoutine: Routine?
     @Environment(\.modelContext) private var modelContext
     
     init() {
         let descriptor = FetchDescriptor<Routine>(
-            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+            sortBy: [SortDescriptor(\.sortOrder, order: .forward)]
         )
         _routines = Query(descriptor, animation: .default)
     }
@@ -24,31 +24,87 @@ struct RoutinesView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(routines) { routine in
-                    RoutineRow(routine: routine, workoutManager: workoutManager, onSelect: {
-                        selectedRoutine = routine
-                    })
-                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                        NavigationLink {
-                            EditRoutineView(routine: routine)
-                        } label: {
-                            Text("Edit")
-                        }
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            deleteRoutine(routine)
-                        } label: {
-                            Text("Delete")
-                        }.tint(.red)
-                    }
-                }
-            }
-            .navigationTitle("Routines")
+//                ForEach(routines) { routine in
+//                    RoutineRow(routine: routine, workoutManager: workoutManager, onSelect: {
+//                        selectedRoutine = routine
+//                    })
+//                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+//                        NavigationLink {
+//                            EditRoutineView(routine: routine)
+//                        } label: {
+//                            Text("Edit")
+//                        }
+//                        .tint(.blue)
+//                    }
+//                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//                        Button(role: .destructive) {
+//                            deleteRoutine(routine)
+//                        } label: {
+//                            Text("Delete")
+//                        }
+//                        .tint(.red)
+//                    }
+//                }
+//                .onMove { source, destination in
+//                    var updatedRoutines = routines
+//                    updatedRoutines.move(fromOffsets: source, toOffset: destination)
+//                    
+//                    // Update sort orders
+//                    for (index, routine) in updatedRoutines.enumerated() {
+//                        routine.sortOrder = index
+//                    }
+//                    try? modelContext.save()
+//                }
+//            } footer: {
+//                Text("Swipe to edit / delete")
+//            }
+//            .navigationTitle("Routines")
+                Section {
+                           ForEach(routines) { routine in
+                               RoutineRow(routine: routine, workoutManager: workoutManager, onSelect: {
+                                   selectedRoutine = routine
+                               })
+                               .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                   NavigationLink {
+                                       EditRoutineView(routine: routine)
+                                   } label: {
+                                       Text("Edit")
+                                   }
+                                   .tint(.blue)
+                               }
+                               .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                   Button(role: .destructive) {
+                                       deleteRoutine(routine)
+                                   } label: {
+                                       Text("Delete")
+                                   }
+                                   .tint(.red)
+                               }
+                           }
+                           .onMove { source, destination in
+                               var updatedRoutines = routines
+                               updatedRoutines.move(fromOffsets: source, toOffset: destination)
+                               
+                               // Update sort orders
+                               for (index, routine) in updatedRoutines.enumerated() {
+                                   routine.sortOrder = index
+                               }
+                               try? modelContext.save()
+                           }
+                       } footer: {
+//                           Text("Swipe to edit / delete")
+                       }
+                   }
+                   .navigationTitle("Routines")
             .toolbar {
-                Button(action: { showingAddRoutine = true }) {
-                    Label("Add Routine", systemImage: "plus")
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: { showingAddRoutine = true }) {
+                        Label("Add Routine", systemImage: "plus")
+                    }
                 }
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    EditButton()
+//                }
             }
             .sheet(isPresented: $showingAddRoutine) {
                 AddRoutineView()

@@ -22,7 +22,7 @@ struct WorkoutView: View {
         NavigationStack {
             ZStack {
                 List {
-                    ForEach(routine.exercises) { exercise in
+                    ForEach(routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })) { exercise in
                         Section(header: Text(exercise.template.name).font(.headline)) {
                             ForEach(Array(exercise.sets.enumerated()), id: \.offset) { index, set in
                                 HStack {
@@ -37,7 +37,6 @@ struct WorkoutView: View {
                                     .frame(width: 60)
                                     .keyboardType(.decimalPad)
                                     .submitLabel(.done)
-//                                    .focused($focusedField, equals: fieldIdentifier(exerciseId: exercise.id, setIndex: index, isWeight: true))
                                     .focused($focusedField, equals : true)
                                     
                                     Text("lbs")
@@ -53,10 +52,8 @@ struct WorkoutView: View {
                                     .frame(width: 50)
                                     .keyboardType(.numberPad)
                                     .submitLabel(.done)
-//                                    .focused($focusedField, equals: fieldIdentifier(exerciseId: exercise.id, setIndex: index, isWeight: false))
                                     .focused($focusedField, equals : true)
 
-                                    
                                     Text("reps")
                                     
                                     Spacer()
@@ -72,6 +69,9 @@ struct WorkoutView: View {
                             }
                         }
                     }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: 25)
                 }
             }
             .navigationTitle(routine.name)
