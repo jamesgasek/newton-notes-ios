@@ -12,7 +12,11 @@ struct ExerciseDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var exercise: Exercise
     @FocusState private var focusedField: Bool
+    @EnvironmentObject private var preferenceManager: PreferenceManager
+
     
+    
+
     var body: some View {
         List {
             Section("SETS") {
@@ -31,7 +35,7 @@ struct ExerciseDetailView: View {
                             .focused($focusedField)
                             .frame(width: 60)
                         
-                        Text("lbs")
+                        Text(preferenceManager.weightUnit)
                             .foregroundStyle(.gray)
                             .frame(width: 30, alignment: .leading)
                         

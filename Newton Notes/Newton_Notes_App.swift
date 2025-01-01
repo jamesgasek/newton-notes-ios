@@ -6,7 +6,7 @@ import ActivityKit
 
 @main
 struct Newton_Notes_App: App {
-    @StateObject private var themeManager = ThemeManager()
+    @StateObject private var preferenceManager = PreferenceManager()
     let container: ModelContainer
     @State private var workoutManager = WorkoutManager()
     
@@ -78,10 +78,7 @@ struct Newton_Notes_App: App {
         WindowGroup {
             NavigationView()
                 .environment(workoutManager)
-                .environmentObject(themeManager)
-                .onAppear {
-                    themeManager.applyTheme()
-                }
+                .environmentObject(preferenceManager)
         }
         .modelContainer(container)
     }

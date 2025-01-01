@@ -10,6 +10,10 @@ struct EditRoutineView: View {
     @State private var editingName = false
     @State private var routineName: String
     
+    @State private var showingNameAlert = false
+
+
+
     init(routine: Routine) {
         self.routine = routine
         _routineName = State(initialValue: routine.name)
@@ -17,26 +21,35 @@ struct EditRoutineView: View {
     
     var body: some View {
         List {
-            Section {
-                if editingName {
-                    TextField("Routine Name", text: $routineName, onCommit: {
-                        routine.name = routineName
-                        try? modelContext.save()
-                        editingName = false
-                    })
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                } else {
-                    HStack {
-                        Text(routine.name)
-                            .font(.headline)
-                        Spacer()
-                        Button(action: { editingName = true }) {
-                            Image(systemName: "pencil")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
-            }
+//            Section {
+//                if editingName {
+//                    TextField("Routine Name", text: $routineName, onCommit: {
+//                        routine.name = routineName
+//                        try? modelContext.save()
+//                        editingName = false
+//                    })
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+//                } else {
+//                    HStack {
+//                        Text(routine.name)
+//                            .font(.headline)
+//                        Spacer()
+//                        Button(action: { editingName = true }) {
+//                            Image(systemName: "pencil")
+//                                .foregroundColor(.blue)
+//                        }
+//                    }
+//                }
+//            }
+//            Section {
+//                TextField("Routine Name", text: $routineName, onCommit: {
+//                    routine.name = routineName
+//                    try? modelContext.save()
+//                })
+//                .textFieldStyle(RoundedBorderTextFieldStyle())
+//            } header: {
+//                Text("") // Empty header for consistent spacing
+//            }
             
             Section {
                 let sortedExercises = routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })
@@ -123,8 +136,23 @@ struct EditRoutineView: View {
             }
         }
         .navigationTitle(routine.name)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            EditButton()
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showingNameAlert = true }) {
+                    Text("Rename")
+                }
+            }
+        }
+        .alert("Rename Routine", isPresented: $showingNameAlert) {
+            TextField("Routine Name", text: $routineName)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                routine.name = routineName
+                try? modelContext.save()
+            }
+        } message: {
+            Text("Enter a new name for this routine")
         }
         .sheet(isPresented: $showingAddExercise) {
             AddExerciseTemplateView { template in

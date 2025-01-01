@@ -7,6 +7,8 @@ struct WorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     // @FocusState private var focusedField: Bool  // Change to simple String identifier
     @FocusState private var focusedField: Bool
+    
+    @EnvironmentObject private var preferenceManager: PreferenceManager
 
     
     init(routine: Routine, workoutManager: WorkoutManager) {
@@ -39,8 +41,8 @@ struct WorkoutView: View {
                                     .submitLabel(.done)
                                     .focused($focusedField, equals : true)
                                     
-                                    Text("lbs")
-                                    
+                                    Text(preferenceManager.weightUnit)
+
                                     TextField("Reps", value: Binding(
                                         get: { set.reps },
                                         set: {
