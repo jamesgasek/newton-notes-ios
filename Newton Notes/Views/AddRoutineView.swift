@@ -80,35 +80,38 @@ struct AddRoutineView: View {
             }
         }
     }
-    
+
     private func addExerciseFromTemplate(_ template: ExerciseTemplate) {
-        logger.debug("Starting addExerciseFromTemplate for template: \(template.name)")
-        
-        // Create the exercise first and insert it into the context
-        let newExercise = Exercise(template: template, sets: [], restTime: 90)
-        modelContext.insert(newExercise)
-        logger.debug("Created exercise shell")
-        
-        // Create and add sets one by one, ensuring they're in the same context
-        for _ in 0..<3 {
-            let set = ExerciseSet(weight: 0, reps: 10)
-            modelContext.insert(set)
-            newExercise.sets.append(set)  // Using append since sets is an array
-            logger.debug("Added set to exercise")
-        }
-        
-        // Add to selected exercises array
-        selectedExercises.append(newExercise)
-        logger.debug("Added exercise to selectedExercises array")
-        
-        // Save the context
-        do {
-            try modelContext.save()
-            logger.debug("Successfully saved context")
-        } catch {
-            logger.error("Error in addExerciseFromTemplate: \(error.localizedDescription)")
-        }
+    logger.debug("Starting addExerciseFromTemplate for template: \(template.name)")
+    
+    // Set the sortOrder for the new exercise based on existing exercises
+    let exerciseSortOrder = selectedExercises.map(\.sortOrder).max() ?? -1
+    
+    // Create the exercise first and insert it into the context
+    let newExercise = Exercise(template: template, sets: [], restTime: 90, sortOrder: exerciseSortOrder + 1)
+    modelContext.insert(newExercise)
+    logger.debug("Created exercise shell with sortOrder: \(newExercise.sortOrder)")
+    
+    // Create and add sets one by one, ensuring they're in the same context
+    for i in 0..<3 {
+        let set = ExerciseSet(weight: 0, reps: 10, sortOrder: i)
+        modelContext.insert(set)
+        newExercise.sets.append(set)
+        logger.debug("Added set \(i) to exercise")
     }
+    
+    // Add to selected exercises array
+    selectedExercises.append(newExercise)
+    logger.debug("Added exercise to selectedExercises array")
+    
+    // Save the context
+    do {
+        try modelContext.save()
+        logger.debug("Successfully saved context")
+    } catch {
+        logger.error("Error in addExerciseFromTemplate: \(error.localizedDescription)")
+    }
+}
     
     private func saveRoutine() {
         logger.debug("Starting saveRoutine with name: \(routineName) and \(selectedExercises.count) exercises")
@@ -126,7 +129,7 @@ struct AddRoutineView: View {
                 
                 // Create and add new sets
                 for set in exercise.sets {
-                    let newSet = ExerciseSet(weight: set.weight, reps: set.reps)
+                    let newSet = ExerciseSet(weight: set.weight, reps: set.reps, sortOrder: set.sortOrder)
                     modelContext.insert(newSet)
                     newExercise.sets.append(newSet)  // Using append since sets is an array
                 }

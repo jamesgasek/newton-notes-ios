@@ -12,10 +12,6 @@ import ActivityKit
     var timeRemaining: Int = 0 {
         didSet {
             if timeRemaining > 0 {
-//                // Only update existing activity if we have one
-//                if currentActivity != nil {
-//                    updateLiveActivity()
-//                }
             } else if oldValue > 0 {
                 endLiveActivity()
             }
@@ -106,35 +102,6 @@ import ActivityKit
             }
         }
     }
-    
-//    private func updateLiveActivity() {
-//        guard let activity = currentActivity,
-//              let startTime = activityStartTime,
-//              timeRemaining > 0 else {
-//            endLiveActivity()
-//            return
-//        }
-//        
-//        // Calculate how much time has elapsed since the start
-//        let elapsedTime = Date().timeIntervalSince(startTime)
-//        // Calculate the total duration based on elapsed time and remaining time
-//        let totalDuration = elapsedTime + TimeInterval(timeRemaining)
-//        // The end date should be start time plus total duration
-//        let endDate = startTime.addingTimeInterval(totalDuration)
-//        
-//        Task {
-//            let updatedContentState = TimerWidgetAttributes.ContentState(
-//                timerRange: startTime...endDate
-//            )
-//            
-//            do {
-//                await activity.update(using: updatedContentState)
-//            } catch {
-//                print("Error updating live activity: \(error)")
-//                currentActivity = nil
-//            }
-//        }
-//    }
     
     private func endLiveActivity() {
         Task {

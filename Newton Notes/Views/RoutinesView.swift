@@ -24,41 +24,6 @@ struct RoutinesView: View {
     var body: some View {
         NavigationStack {
             List {
-//                ForEach(routines) { routine in
-//                    RoutineRow(routine: routine, workoutManager: workoutManager, onSelect: {
-//                        selectedRoutine = routine
-//                    })
-//                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
-//                        NavigationLink {
-//                            EditRoutineView(routine: routine)
-//                        } label: {
-//                            Text("Edit")
-//                        }
-//                        .tint(.blue)
-//                    }
-//                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-//                        Button(role: .destructive) {
-//                            deleteRoutine(routine)
-//                        } label: {
-//                            Text("Delete")
-//                        }
-//                        .tint(.red)
-//                    }
-//                }
-//                .onMove { source, destination in
-//                    var updatedRoutines = routines
-//                    updatedRoutines.move(fromOffsets: source, toOffset: destination)
-//                    
-//                    // Update sort orders
-//                    for (index, routine) in updatedRoutines.enumerated() {
-//                        routine.sortOrder = index
-//                    }
-//                    try? modelContext.save()
-//                }
-//            } footer: {
-//                Text("Swipe to edit / delete")
-//            }
-//            .navigationTitle("Routines")
                 Section {
                            ForEach(routines) { routine in
                                RoutineRow(routine: routine, workoutManager: workoutManager, onSelect: {

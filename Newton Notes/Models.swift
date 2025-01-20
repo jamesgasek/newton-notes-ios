@@ -67,6 +67,48 @@ public class ExerciseTemplate: Identifiable {
     }
 }
 
+//@Model
+//public class Exercise {
+//    var template: ExerciseTemplate
+//    var sets: [ExerciseSet]
+//    var restTime: Int
+//    var sortOrder: Int
+//    
+//    init(template: ExerciseTemplate, sets: [ExerciseSet] = [], restTime: Int = 90, sortOrder: Int = 0) {
+//        self.template = template
+//        self.sets = sets
+//        self.restTime = restTime
+//        self.sortOrder = sortOrder
+//    }
+//}
+//
+//@Model
+//public class ExerciseSet {
+//    var weight: Double
+//    var reps: Int
+//    var timestamp: Date
+//    
+//    init(weight: Double = 0, reps: Int = 0, timestamp: Date = Date()) {
+//        self.weight = weight
+//        self.reps = reps
+//        self.timestamp = timestamp
+//    }
+//}
+// In ExerciseSet.swift - modify the model
+@Model
+public class ExerciseSet {
+    var weight: Double
+    var reps: Int
+    var sortOrder: Int  // New field
+    
+    init(weight: Double = 0, reps: Int = 0, timestamp: Date = Date(), sortOrder: Int) {
+        self.weight = weight
+        self.reps = reps
+        self.sortOrder = sortOrder
+    }
+}
+
+// In Exercise.swift
 @Model
 public class Exercise {
     var template: ExerciseTemplate
@@ -74,24 +116,15 @@ public class Exercise {
     var restTime: Int
     var sortOrder: Int
     
+    var sortedSets: [ExerciseSet] {
+        sets.sorted { $0.sortOrder < $1.sortOrder }
+    }
+    
     init(template: ExerciseTemplate, sets: [ExerciseSet] = [], restTime: Int = 90, sortOrder: Int = 0) {
         self.template = template
         self.sets = sets
         self.restTime = restTime
         self.sortOrder = sortOrder
-    }
-}
-
-@Model
-public class ExerciseSet {
-    var weight: Double
-    var reps: Int
-    var timestamp: Date
-    
-    init(weight: Double = 0, reps: Int = 0, timestamp: Date = Date()) {
-        self.weight = weight
-        self.reps = reps
-        self.timestamp = timestamp
     }
 }
 
@@ -155,9 +188,9 @@ struct ExerciseData: Codable {
 }
 
 struct ExerciseSetData: Codable {
+    var sortOrder: Int
     var weight: Double
     var reps: Int
-    var timestamp: Date
 }
 
 struct AnalyticsLogData: Codable {

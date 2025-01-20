@@ -1,10 +1,4 @@
-//
-//  ExersizeDetailView.swift
-//  Newton Notes
-//
-//  Created by James Gasek on 11/6/24.
-//
-
+// ExerciseDetailView.swift
 import SwiftUI
 
 struct ExerciseDetailView: View {
@@ -13,22 +7,25 @@ struct ExerciseDetailView: View {
     @Bindable var exercise: Exercise
     @FocusState private var focusedField: Bool
     @EnvironmentObject private var preferenceManager: PreferenceManager
-
     
-    
-
     var body: some View {
         List {
             Section("SETS") {
-                ForEach(exercise.sets.indices, id: \.self) { index in
+                ForEach(exercise.sortedSets.indices, id: \.self) { index in
                     HStack {
                         Text("Set \(index + 1)")
-//                            .foregroundStyle(.white)
                         
                         Spacer()
                         
-                        TextField("0", value: $exercise.sets[index].weight, format: .number)
+                        let set = exercise.sortedSets[index]
                         
+                        TextField("0", value: Binding(
+                            get: { set.weight },
+                            set: {
+                                set.weight = $0
+                                try? modelContext.save()
+                            }
+                        ), format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
@@ -39,7 +36,13 @@ struct ExerciseDetailView: View {
                             .foregroundStyle(.gray)
                             .frame(width: 30, alignment: .leading)
                         
-                        TextField("0", value: $exercise.sets[index].reps, format: .number)
+                        TextField("0", value: Binding(
+                            get: { set.reps },
+                            set: {
+                                set.reps = $0
+                                try? modelContext.save()
+                            }
+                        ), format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
@@ -74,7 +77,8 @@ struct ExerciseDetailView: View {
                     }
                 }
             }
-            Section("Rest Time (Seconds)"){
+            
+            Section("Rest Time (Seconds)") {
                 TextField("90", value: $exercise.restTime, format: .number)
                     .focused($focusedField)
                     .keyboardType(.numberPad)
@@ -101,12 +105,19 @@ struct ExerciseDetailView: View {
     }
     
     private func addSet() {
-        exercise.sets.append(ExerciseSet())
+        let newSortOrder = exercise.sets.map(\.sortOrder).max() ?? -1
+        let newSet = ExerciseSet(sortOrder: newSortOrder + 1)
+        exercise.sets.append(newSet)
+        try? modelContext.save()
     }
     
     private func removeLastSet() {
         if !exercise.sets.isEmpty {
-            exercise.sets.removeLast()
+            let lastSet = exercise.sortedSets.last
+            if let setToRemove = lastSet {
+                exercise.sets.removeAll { $0.sortOrder == setToRemove.sortOrder }
+                try? modelContext.save()
+            }
         }
     }
     

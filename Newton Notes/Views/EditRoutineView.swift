@@ -163,9 +163,9 @@ struct EditRoutineView: View {
     
     private func addExerciseFromTemplate(_ template: ExerciseTemplate) {
         let defaultSets = [
-            ExerciseSet(weight: 0, reps: 10),
-            ExerciseSet(weight: 0, reps: 10),
-            ExerciseSet(weight: 0, reps: 10)
+            ExerciseSet(weight: 0, reps: 10, sortOrder: 0),
+            ExerciseSet(weight: 0, reps: 10, sortOrder: 2),
+            ExerciseSet(weight: 0, reps: 10, sortOrder: 3)
         ]
         
         let exercise = Exercise(

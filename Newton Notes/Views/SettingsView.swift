@@ -43,9 +43,9 @@ struct SettingsView: View {
                             ),
                             sets: exercise.sets.map { set in
                                 ExerciseSetData(
+                                    sortOrder: set.sortOrder,
                                     weight: set.weight,
-                                    reps: set.reps,
-                                    timestamp: set.timestamp
+                                    reps: set.reps
                                 )
                             },
                             restTime: exercise.restTime,
@@ -165,7 +165,7 @@ struct SettingsView: View {
                                 ExerciseSet(
                                     weight: setData.weight,
                                     reps: setData.reps,
-                                    timestamp: setData.timestamp
+                                    sortOrder: setData.sortOrder
                                 )
                             }
                             
@@ -271,6 +271,13 @@ struct SettingsView: View {
                 
                 Link("Rate App", destination: URL(string: "https://apps.apple.com")!)
                 Link("Privacy Policy", destination: URL(string: "http://www.gasek.net/newtonnotes/privacypolicy")!)
+                Button(action: {
+                    if let url = URL(string: "mailto:james@gasek.net?subject=Newton%20Notes%20Feedback") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Feedback / Suggestions", systemImage: "envelope")
+                }
             }
             .navigationTitle("Settings")
             .alert("Import Status", isPresented: $showingImportAlert) {

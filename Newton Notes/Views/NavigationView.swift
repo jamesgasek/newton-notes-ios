@@ -73,14 +73,14 @@ struct NavigationView: View {
                             .font(.system(.title2, design: .monospaced))
                             .foregroundColor(workoutManager.timeRemaining <= 15 ? .red : .primary)
                             .padding(.leading)
-                        
+
                         Spacer()
                         
                         Button(action: {
                             workoutManager.skipCurrentPeriod()
                         }) {
                             HStack(spacing: 4) {
-                                Text("Skip")
+                                Text("Skip Rest")
                                 Image(systemName: "forward.fill")
                             }
                             .foregroundColor(.blue)

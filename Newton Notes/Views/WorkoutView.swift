@@ -5,11 +5,8 @@ struct WorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var manager: WorkoutManager
     @Environment(\.modelContext) private var modelContext
-    // @FocusState private var focusedField: Bool  // Change to simple String identifier
     @FocusState private var focusedField: Bool
-    
     @EnvironmentObject private var preferenceManager: PreferenceManager
-
     
     init(routine: Routine, workoutManager: WorkoutManager) {
         self.routine = routine
@@ -26,7 +23,7 @@ struct WorkoutView: View {
                 List {
                     ForEach(routine.exercises.sorted(by: { $0.sortOrder < $1.sortOrder })) { exercise in
                         Section(header: Text(exercise.template.name).font(.headline)) {
-                            ForEach(Array(exercise.sets.enumerated()), id: \.offset) { index, set in
+                            ForEach(Array(exercise.sortedSets.enumerated()), id: \.offset) { index, set in
                                 HStack {
                                     TextField("Weight", value: Binding(
                                         get: { set.weight },
@@ -39,10 +36,10 @@ struct WorkoutView: View {
                                     .frame(width: 60)
                                     .keyboardType(.decimalPad)
                                     .submitLabel(.done)
-                                    .focused($focusedField, equals : true)
+                                    .focused($focusedField, equals: true)
                                     
                                     Text(preferenceManager.weightUnit)
-
+                                    
                                     TextField("Reps", value: Binding(
                                         get: { set.reps },
                                         set: {
@@ -54,8 +51,8 @@ struct WorkoutView: View {
                                     .frame(width: 50)
                                     .keyboardType(.numberPad)
                                     .submitLabel(.done)
-                                    .focused($focusedField, equals : true)
-
+                                    .focused($focusedField, equals: true)
+                                    
                                     Text("reps")
                                     
                                     Spacer()

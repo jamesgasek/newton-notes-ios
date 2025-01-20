@@ -46,22 +46,13 @@ struct TimerWidgetLiveActivity: Widget {
                         .font(.headline)
                 }
                 
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text(timerInterval: context.state.timerRange)
-                        .font(.title2)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                        .multilineTextAlignment(.trailing)  // Add this
-                }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-//                    ProgressView(value: progressValue(for: context.state.timerRange))
-//                        .tint(context.state.isWorkout ? .green : .blue)
+
                 }
             } compactLeading: {
                 // Compact leading UI (Dynamic Island)
                 Label {
-                    Text(timerInterval: context.state.timerRange, showsHours: false)
                 }
                 icon: {
                     Image(systemName: "timer")
